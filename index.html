@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0F5EA8">
+<title>Germany 2026 — Trip Itinerary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --navy: #0F5EA8;
+    --navy-deep: #0A4478;
+    --parchment: #FFFFFF;
+    --parchment-dim: #D6E9FA;
+    --gold: #7FC1EE;
+    --green: #0A4478;
+    --brick: #0A4478;
+    --ink: #0A4478;
+    --paper-text: #F2F8FE;
+    --line: rgba(242,248,254,0.22);
+  }
+  *{box-sizing:border-box;}
+  html{
+    color-scheme: light;
+    background: var(--navy);
+    background-color: var(--navy);
+    min-height: 100%;
+  }
+  body{
+    color-scheme: light;
+    margin:0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--navy);
+    background-color: var(--navy);
+    color: var(--paper-text);
+    font-family: 'Source Serif 4', serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .display{ font-family:'Bebas Neue', sans-serif; letter-spacing: 0.04em; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+
+  /* ---------- Overlay screens (password / name) ---------- */
+  .overlay{
+    position: fixed; inset:0; z-index: 50;
+    display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(circle at 50% 20%, #164d8c 0%, var(--navy-deep) 70%);
+    padding: 24px;
+  }
+  .stamp-card{
+    width: 100%; max-width: 420px;
+    background: var(--parchment);
+    color: var(--ink);
+    border-radius: 4px;
+    padding: 40px 32px;
+    position: relative;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.45);
+    border: 1px solid rgba(22,35,63,0.15);
+  }
+  .stamp-card::before{
+    content:"";
+    position:absolute; inset: 10px;
+    border: 1.5px dashed rgba(22,35,63,0.25);
+    pointer-events:none;
+  }
+  .stamp-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--brick); margin-bottom: 8px;
+  }
+  .stamp-title{
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 42px; line-height: 1; letter-spacing: 0.02em;
+    margin: 0 0 18px 0;
+  }
+  .field-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: rgba(22,35,63,0.6); display:block; margin-bottom: 6px;
+  }
+  input[type="password"], select.name-select{
+    width:100%; padding: 12px 14px; font-size: 16px;
+    font-family:'IBM Plex Mono', monospace;
+    border: 1.5px solid rgba(22,35,63,0.3); border-radius: 3px;
+    background: #fff; color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--navy); color: var(--parchment);
+    border: none; border-radius: 3px; padding: 13px 20px;
+    cursor: pointer; width: 100%;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .btn:hover{ background: var(--navy-deep); }
+  .btn:active{ transform: scale(0.98); }
+  .btn-ghost{
+    background: transparent; color: var(--ink); border: 1.5px solid rgba(22,35,63,0.3);
+  }
+  .btn-ghost:hover{ background: rgba(22,35,63,0.06); }
+  .error-msg{ color: var(--brick); font-size: 13px; margin: -8px 0 14px; font-family:'IBM Plex Mono',monospace; }
+  .hidden{ display:none !important; }
+
+  /* ---------- Header / route map ---------- */
+  header.hero{
+    padding: 70px 24px;
+    text-align:center;
+    position: relative;
+    overflow:hidden;
+    min-height: 260px;
+    display:flex; align-items:center; justify-content:center;
+    background: #fff;
+  }
+  header.hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221200%22%20height%3D%22500%22%20viewBox%3D%220%200%201200%20500%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22d%22%20width%3D%22140%22%20height%3D%2260%22%20patternUnits%3D%22userSpaceOnUse%22%20patternTransform%3D%22rotate%2820%29%22%3E%3Crect%20width%3D%22140%22%20height%3D%2260%22%20fill%3D%22white%22/%3E%3Cpolygon%20points%3D%2270.0%2C0%20140%2C30.0%2070.0%2C60%200%2C30.0%22%20fill%3D%22%230F5EA8%22/%3E%3C/pattern%3E%3C/defs%3E%3Crect%20width%3D%221200%22%20height%3D%22500%22%20fill%3D%22url%28%23d%29%22/%3E%3C/svg%3E");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events:none;
+    z-index: 0;
+  }
+  .hero-panel{
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    background: var(--navy);
+    padding: 28px 40px;
+    border-radius: 6px;
+    box-shadow: 0 18px 40px rgba(6,38,72,0.35);
+  }
+  .hero-panel .hero-eyebrow,
+  .hero-panel .hero-title,
+  .hero-panel .hero-sub{
+    color: #fff;
+  }
+  .hero-eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.22em; text-transform:uppercase;
+    color: var(--gold); margin-bottom:10px;
+  }
+  h1.hero-title{
+    font-family:'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 96px);
+    line-height: 0.95; margin: 0 0 8px;
+    letter-spacing: 0.01em;
+  }
+  .hero-sub{ font-size:16px; color: var(--parchment-dim); margin-bottom: 0; }
+
+  /* user bar */
+  .userbar{
+    display:flex; align-items:center; justify-content:center; gap: 14px;
+    font-family:'IBM Plex Mono', monospace; font-size: 12px; color: var(--parchment-dim);
+    padding: 14px 16px; flex-wrap:wrap;
+  }
+  .userbar b{ color: var(--gold); }
+  .userbar a{ color: var(--parchment-dim); text-decoration: underline; cursor:pointer; }
+  .userbar a:hover{ color: var(--parchment); }
+
+  /* ---------- Calendar ---------- */
+  .calendar-wrap{ padding: 34px 20px 30px; max-width: 460px; margin: 0 auto; }
+  .calendar{
+    background: var(--parchment); color: var(--ink);
+    border-radius: 6px; padding: 20px 20px 16px;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.25);
+  }
+  .calendar-title{
+    font-family:'Bebas Neue', sans-serif; font-size: 20px; letter-spacing:0.03em;
+    text-align:center; margin-bottom: 14px;
+  }
+  .calendar-grid{
+    display:grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+  }
+  .calendar-weekday{
+    font-family:'IBM Plex Mono',monospace; font-size: 10px; text-transform:uppercase;
+    text-align:center; color: rgba(10,68,120,0.5); padding-bottom: 4px;
+  }
+  .calendar-day{
+    aspect-ratio: 1; display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono',monospace; font-size: 12.5px; border-radius: 50%;
+    color: rgba(10,68,120,0.35);
+  }
+  .calendar-day.has-event{
+    background: var(--navy); color:#fff; cursor:pointer; font-weight:600;
+    transition: transform 0.12s ease, background 0.12s ease;
+  }
+  .calendar-day.has-event:hover{ background: var(--navy-deep); transform: scale(1.1); }
+  .calendar-day.in-range:not(.has-event){ color: var(--ink); }
+
+  /* ---------- Quick add ---------- */
+  .quickadd-wrap{ padding: 0 20px 40px; max-width: 460px; margin: 0 auto; }
+  .quickadd{
+    background: var(--parchment); color: var(--ink);
+    border-radius: 6px; padding: 20px 22px 22px;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.25);
+    text-align: left;
+  }
+  .quickadd-title{
+    font-family:'Bebas Neue', sans-serif; font-size: 20px; letter-spacing:0.03em;
+    text-align:center; margin-bottom: 14px;
+  }
+  select.quickadd-select{
+    width:100%; padding: 11px 12px; font-size: 14px;
+    font-family:'IBM Plex Mono', monospace;
+    border: 1.5px solid rgba(22,35,63,0.3); border-radius: 3px;
+    background: #fff; color: var(--ink); margin-bottom: 14px;
+  }
+  .qa-field{ margin-bottom: 12px; }
+  .qa-field label{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em;
+    color: var(--brick); display:block; margin-bottom: 4px;
+  }
+  .qa-field input:not([type="checkbox"]){
+    width:100%; padding: 9px 10px; font-size: 14px; font-family:'Source Serif 4', serif;
+    border: 1.5px solid rgba(22,35,63,0.25); border-radius: 3px; color: var(--ink); background:#fff;
+  }
+  .qa-checkbox-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;
+    border: 1.5px solid rgba(22,35,63,0.25); border-radius: 3px;
+    padding: 10px 12px; background:#fff;
+  }
+  .qa-field .qa-checkbox-row{
+    display:flex; align-items:center; gap: 8px; padding: 5px 2px;
+    font-family:'Source Serif 4', serif; font-size: 14px; color: var(--ink);
+    text-transform: none; letter-spacing: normal;
+    cursor: pointer; user-select: none;
+  }
+  .qa-checkbox-row input[type="checkbox"]{
+    appearance: none; -webkit-appearance: none;
+    width: 18px; height: 18px; margin: 0; padding: 0;
+    border: 1.5px solid rgba(22,35,63,0.35); border-radius: 3px;
+    background: #fff; cursor: pointer; flex-shrink:0;
+    position: relative; display:inline-block; vertical-align:middle;
+  }
+  .qa-checkbox-row input[type="checkbox"]:checked{
+    background: var(--navy); border-color: var(--navy);
+  }
+  .qa-checkbox-row input[type="checkbox"]:checked::after{
+    content:"";
+    position:absolute; left:5px; top:1px;
+    width:5px; height:9px;
+    border: solid #fff; border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .qa-hint{
+    font-family:'IBM Plex Mono',monospace; font-size: 10.5px; color: rgba(22,35,63,0.45);
+    margin-top: 4px;
+  }
+
+  .qa-dt-row{ display:flex; gap: 8px; }
+  .qa-dt-time-row{ display:flex; gap: 8px; margin-top: 6px; }
+  select.qa-dt-select{
+    flex: 1; min-width: 0; padding: 9px 8px; font-size: 13px;
+    font-family:'IBM Plex Mono', monospace;
+    border: 1.5px solid rgba(22,35,63,0.25); border-radius: 3px;
+    background: #fff; color: var(--ink);
+  }
+  .qa-dt-loc{
+    width:100%; padding: 9px 10px; font-size: 13px; font-family:'Source Serif 4', serif;
+    border: 1.5px solid rgba(22,35,63,0.25); border-radius: 3px; color: var(--ink); background:#fff;
+    margin-top: 6px;
+  }
+  select.qa-dt-loc{ font-family:'IBM Plex Mono', monospace; font-size: 13px; }
+  input.qa-dt-loc-other{
+    width:100%; padding: 9px 10px; font-size: 13px; font-family:'Source Serif 4', serif;
+    border: 1.5px solid rgba(22,35,63,0.25); border-radius: 3px; color: var(--ink); background:#fff;
+  }
+
+  /* ---------- Timeline ---------- */
+  main{ max-width: 760px; margin: 0 auto; padding: 40px 20px 100px; position:relative; }
+  main::before{
+    content:""; position:absolute; left: 28px; top:0; bottom:0; width:1px;
+    background: var(--line);
+  }
+  @media (min-width: 600px){
+    main::before{ left: 50%; }
+  }
+
+  .event{
+    position:relative; padding-left: 60px; margin-bottom: 46px;
+  }
+  @media (min-width:600px){
+    .event{ padding-left:0; width: 46%; }
+    .event:nth-child(odd){ margin-right: 54%; text-align:right; }
+    .event:nth-child(odd) .ticket{ text-align:left; }
+    .event:nth-child(even){ margin-left: 54%; }
+  }
+  .event-marker{
+    position:absolute; left: 22px; top: 4px;
+    width: 13px; height:13px; border-radius:50%;
+    background: var(--gold); border: 2px solid var(--navy);
+    box-shadow: 0 0 0 2px var(--gold);
+  }
+  @media (min-width:600px){
+    .event:nth-child(odd) .event-marker{ left: auto; right: -60px; transform: translateX(50%);}
+    .event:nth-child(even) .event-marker{ left: -60px; transform: translateX(-50%);}
+  }
+  .event-date{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.1em; text-transform:uppercase;
+    color: var(--gold); margin-bottom: 6px;
+  }
+  .ticket{
+    background: var(--parchment); color: var(--ink);
+    border-radius: 4px; padding: 22px 22px 18px;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .ticket-title{
+    font-family:'Bebas Neue', sans-serif; font-size: 28px; letter-spacing:0.01em;
+    margin: 0 0 12px; line-height:1.05;
+  }
+  .ticket-details{ list-style:none; margin:0 0 14px; padding:0; }
+  .ticket-details li{
+    font-size: 14px; line-height:1.5; margin-bottom: 8px; color: rgba(22,35,63,0.85);
+  }
+  .ticket-details b{ font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em; color: var(--brick); display:block; margin-bottom: 2px;}
+  .ticket-details a{ color: var(--green); font-weight: 600; text-decoration: none; }
+  .ticket-details a:hover{ text-decoration: underline; }
+
+  .save-btn{ width:auto; padding: 9px 16px; font-size:11px; margin-top: 8px; }
+  .save-state{ font-family:'IBM Plex Mono',monospace; font-size: 11px; color: var(--green); margin-left: 10px; opacity:0; transition: opacity .3s; }
+  .save-state.show{ opacity:1; }
+
+  select.roster-select{
+    width:100%; padding: 9px 10px; font-size: 13px;
+    font-family:'IBM Plex Mono', monospace;
+    border: 1.5px solid rgba(22,35,63,0.25); border-radius: 3px;
+    background: #fff; color: var(--ink); margin-top: 2px;
+  }
+  .person-detail{ margin-top: 10px; }
+  .person-detail .ticket-details{ margin-bottom: 6px; }
+  .person-detail .ticket-details li{ margin-bottom: 6px; }
+
+  .roster{ margin-top: 14px; }
+  .roster-label{ font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color: rgba(22,35,63,0.55); margin-bottom:8px; }
+  .roster-list{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{
+    font-family:'IBM Plex Mono',monospace; font-size: 11.5px; padding: 4px 10px; border-radius: 20px;
+    background: rgba(29,111,184,0.1); color: var(--green); border: 1px solid rgba(29,111,184,0.3);
+  }
+  .chip.out{ background: rgba(140,47,57,0.08); color: var(--brick); border-color: rgba(140,47,57,0.3); text-decoration: line-through; opacity:0.7;}
+  .chip-note{ font-weight:600; }
+
+  footer{ text-align:center; padding: 40px 20px 60px; font-family:'IBM Plex Mono',monospace; font-size: 11px; color: rgba(237,227,205,0.35); letter-spacing:0.05em; }
+
+  .loading{ text-align:center; padding: 80px 20px; font-family:'IBM Plex Mono',monospace; color: var(--parchment-dim); }
+</style>
+</head>
+<body>
+
+<!-- Password gate -->
+<div id="gate" class="overlay">
+  <div class="stamp-card">
+    <div class="stamp-eyebrow">Grenzkontrolle · Checkpoint</div>
+    <h2 class="stamp-title">Germany 2026</h2>
+    <label class="field-label" for="pw-input">Trip password</label>
+    <input type="password" id="pw-input" placeholder="•••••••••" autocomplete="off">
+    <div id="pw-error" class="error-msg hidden">That's not it — try again.</div>
+    <button class="btn" id="pw-submit">Enter</button>
+  </div>
+</div>
+
+<!-- Name picker -->
+<div id="namegate" class="overlay hidden">
+  <div class="stamp-card">
+    <div class="stamp-eyebrow">Passport Control</div>
+    <h2 class="stamp-title">Who's this?</h2>
+    <label class="field-label" for="name-select">Select your name</label>
+    <select id="name-select" class="name-select">
+      <option value="">— choose —</option>
+    </select>
+    <button class="btn" id="name-submit">Continue</button>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header class="hero">
+    <div class="hero-panel">
+      <div class="hero-eyebrow">Sept 16 – 27, 2026</div>
+      <h1 class="hero-title">Germany</h1>
+      <div class="hero-sub">Hamburg → Munich → Berlin</div>
+    </div>
+  </header>
+
+  <div class="calendar-wrap">
+    <div class="calendar" id="calendar"></div>
+  </div>
+
+  <div class="quickadd-wrap">
+    <div class="quickadd">
+      <div class="quickadd-title">Add Your Details</div>
+      <select class="quickadd-select" id="quickadd-select">
+        <option value="">— choose a leg —</option>
+      </select>
+      <div id="quickadd-fields"></div>
+      <button class="btn save-btn hidden" id="quickadd-save" style="width:100%;">Save</button>
+      <span class="save-state" id="quickadd-savestate">Saved ✓</span>
+    </div>
+  </div>
+
+  <div class="userbar">
+    Checked in as <b id="who-label"></b>
+    <a id="switch-name">switch name</a>
+    ·
+    <a id="lock-again">lock site</a>
+  </div>
+
+  <main id="timeline"></main>
+
+  <footer>Each leg shows who's confirmed. Add your own travel details below it — everyone can see what you enter.</footer>
+</div>
+
+<div id="loading" class="loading hidden">Loading itinerary…</div>
+
+<script type="module">
+// ============ FIREBASE ============
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAhjX0KZfOJY4ZffSpU1B06jlTY_HH_mzc",
+  authDomain: "germany-2026.firebaseapp.com",
+  projectId: "germany-2026",
+  storageBucket: "germany-2026.firebasestorage.app",
+  messagingSenderId: "959678581942",
+  appId: "1:959678581942:web:82bbd784f63322da766a17"
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+const TRIP_PATH = ["trips", "germany2026", "data"]; // matches Firestore security rules
+// ============ CONFIG ============
+// Change this password before sharing the link with the group.
+const PASSWORD = "gag";
+
+const NAMES = ["Bailey","Blair","Dillon","Emma","Joe","Jordan","Kathryn","Michael","Natalie","Paul","Zac"];
+
+const ROUTE = ["Chicago","Hamburg","Munich","Berlin","Chicago"];
+
+const EVENTS = [
+  {
+    id: "transport-hamburg", date: "Wed, Sep 16", title: "Transportation to Hamburg", emoji: "✈️",
+    details: [
+      ["Flight departs", "Wed 9/16, 4:05pm · ORD"],
+      ["Connects in", "Frankfurt — lands Thu 9/17, 7:25am"],
+      ["Onward flight", "Thu 9/17, 10:00am from Frankfurt"],
+      ["Flight lands", "Thu 9/17, 11:05am · HAM"]
+    ],
+    attendees: ["Kathryn","Paul"]
+  },
+  {
+    id: "arr-hamburg", date: "Thu, Sep 17", title: "Hamburg Accommodations", emoji: "🏨",
+    details: [
+      ["Hotel", "The Westin Hamburg Elbphilharmonie"],
+      ["Address", "Platz der Deutschen Einheit 2, 20457 Hamburg, Germany"],
+      ["Map", "<a href=\"https://www.google.com/maps/search/?api=1&query=The%20Westin%20Hamburg%20Elbphilharmonie%2C%20Hamburg%2C%20Germany\" target=\"_blank\" rel=\"noopener\">Open in Google Maps →</a>"],
+      ["Check-in", "4:00pm Thu 9/17"],
+      ["Check-out", "12:00pm Sat 9/19"]
+    ],
+    mapQuery: "The Westin Hamburg Elbphilharmonie, Hamburg, Germany",
+    attendees: ["Kathryn","Paul"]
+  },
+  {
+    id: "dep-hamburg", date: "Sat, Sep 19", title: "Transportation to Munich", emoji: "🚆",
+    details: [
+      ["Train departs", "11:01am · Hamburg Hbf"],
+      ["Train arrives", "4:49pm · München Hbf"],
+      ["Train / car / seat", "ICE 587 · Car 11 · Seat 85"]
+    ],
+    attendees: ["Kathryn","Paul"]
+  },
+  {
+    id: "arr-munich", date: "Sat, Sep 19", title: "Munich Accommodations", emoji: "🏠",
+    details: [
+      ["Type", "Airbnb"],
+      ["Listing", "Home in Munich"],
+      ["Listing link", "<a href=\"https://www.airbnb.com/rooms/1509926535980561693?source_impression_id=p3_1786990564_P3BrhuyPeYGK4Vl1\" target=\"_blank\" rel=\"noopener\">View Airbnb listing →</a>"],
+      ["Address", "Dachauer Straße 21A, Munich, Bavaria 80335"],
+      ["Map", "<a href=\"https://www.google.com/maps/search/?api=1&query=Dachauer%20Stra%C3%9Fe%2021A%2C%20Munich%2C%20Bavaria%2080335%2C%20Germany\" target=\"_blank\" rel=\"noopener\">Open in Google Maps →</a>"],
+      ["Confirmation", "HMEAXJSDAK"],
+      ["Check-in", "4:00pm Sat 9/19"],
+      ["Check-out", "10:00am Wed 9/23"]
+    ],
+    mapQuery: "Dachauer Straße 21A, Munich, Bavaria 80335, Germany",
+    attendees: ["Dillon","Joe","Jordan","Kathryn","Michael","Paul"]
+  },
+  {
+    id: "castle-excursion", date: "Sun, Sep 20", title: "Castle Excursion", emoji: "🏰",
+    details: [
+      ["Booking link", "<a href=\"https://www.getyourguide.com/booking/LZ7KD3SY1178G6Z4UUX2ULITQW0K35DO?partner_id=GLBKRID&visitor_id=HB9KUQF73D2WS6T5CF9BXRPVEOXXX5RI&utm_source=getyourguide&utm_medium=email_transactional&utm_campaign=shopping_cart_confirmation_v2&utm_content=booking_summary_manage_booking_move_v3\" target=\"_blank\" rel=\"noopener\">View excursion details →</a>"],
+      ["Confirmation", "GYGMX4GGNFN7"],
+      ["PIN", "8&kGY1hx"],
+      ["Pick-up", "Karlsplatz 21 (Stachus), next to Hotel Buddy"],
+      ["Map", "<a href=\"https://www.google.com/maps/search/?api=1&query=Karlsplatz%2021%2C%20Munich%2C%20Germany\" target=\"_blank\" rel=\"noopener\">Open in Google Maps →</a>"],
+      ["Pick-up time", "8:15am — arrive no later"],
+      ["Rough schedule", "Linderhof 10:30 · Oberammergau drive-by 11:50 · Hohenschwangau / lunch 12:35 · Marienbrücke 2:35 · Neuschwanstein tour · drop-off 7:00pm"]
+    ],
+    mapQuery: "Karlsplatz 21, Munich, Germany",
+    attendees: ["Bailey","Blair","Dillon","Emma","Joe","Jordan","Kathryn","Natalie","Paul","Zac"]
+  },
+  {
+    id: "oktoberfest", date: "Tue, Sep 22", title: "Oktoberfest", emoji: "🍻",
+    details: [
+      ["Location", "Wiesn"],
+      ["Map", "<a href=\"https://www.google.com/maps/search/?api=1&query=Theresienwiese%2C%20Munich%2C%20Germany\" target=\"_blank\" rel=\"noopener\">Open in Google Maps →</a>"],
+      ["Tent", "Hacker-Festzelt"]
+    ],
+    mapQuery: "Theresienwiese, Munich, Germany",
+    attendees: ["Bailey","Blair","Dillon","Emma","Joe","Jordan","Kathryn","Michael","Natalie","Paul","Zac"]
+  },
+  {
+    id: "dep-munich", date: "Wed, Sep 23", title: "Transportation to Berlin", emoji: "🚆",
+    details: [
+      ["Train departs", "11:18am · München Hbf"],
+      ["Train arrives", "3:23pm · Berlin Hbf"],
+      ["Train / car / seat", "ICE 1008 · Car 23 · Seat 26"]
+    ],
+    attendees: ["Paul"]
+  },
+  {
+    id: "arr-berlin", date: "Wed, Sep 23", title: "Berlin Accommodations", emoji: "🏨",
+    details: [
+      ["Hotel", "Hampton by Hilton Berlin City East Side Gallery (booked by Jordan & Paul)"],
+      ["Address", "Mildred-Harnack-Straße 15, 10243 Berlin, Germany"],
+      ["Map", "<a href=\"https://www.google.com/maps/search/?api=1&query=Hampton%20by%20Hilton%20Berlin%20City%20East%20Side%20Gallery%2C%20Berlin%2C%20Germany\" target=\"_blank\" rel=\"noopener\">Open in Google Maps →</a>"],
+      ["Confirmation", "92228825"],
+      ["Check-in", "3:00pm Wed 9/23"],
+      ["Check-out", "12:00pm Sun 9/27"]
+    ],
+    mapQuery: "Hampton by Hilton Berlin City East Side Gallery, Berlin, Germany",
+    attendees: ["Jordan","Paul"]
+  },
+  {
+    id: "transport-chicago", date: "Sun, Sep 27", title: "Transportation to Chicago", emoji: "✈️",
+    details: [
+      ["Flight departs", "Sun 9/27, 9:50am · BER"],
+      ["Connects in", "Newark (EWR) — lands 12:50pm"],
+      ["Onward flight", "Sun 9/27, 2:50pm from Newark"],
+      ["Flight lands", "Sun 9/27, 4:34pm · ORD"]
+    ],
+    attendees: ["Paul"]
+  }
+];
+
+// ============ STATE ============
+let currentUser = null;
+let rsvpCache = {}; // eventId -> { name: {attending: bool, note: string} }
+let customEvents = []; // events added by the group at runtime
+
+function allEvents(){
+  return EVENTS.concat(customEvents);
+}
+
+// ============ HELPERS ============
+async function storageGet(key, shared){
+  if(!shared){
+    try{ return localStorage.getItem("germany2026:"+key); }
+    catch(e){ return null; }
+  }
+  try{
+    const ref = doc(db, ...TRIP_PATH, key);
+    const snap = await getDoc(ref);
+    if(!snap.exists()) return null;
+    return snap.data().value;
+  }catch(e){ console.error("storage get failed", e); return null; }
+}
+async function storageSet(key, value, shared){
+  if(!shared){
+    try{ localStorage.setItem("germany2026:"+key, value); return true; }
+    catch(e){ return false; }
+  }
+  try{
+    const ref = doc(db, ...TRIP_PATH, key);
+    await setDoc(ref, { value });
+    return true;
+  }catch(e){ console.error("storage set failed", e); return false; }
+}
+
+function show(el){ el.classList.remove("hidden"); }
+function hide(el){ el.classList.add("hidden"); }
+
+// ============ GATE 1: PASSWORD ============
+const gate = document.getElementById("gate");
+const pwInput = document.getElementById("pw-input");
+const pwSubmit = document.getElementById("pw-submit");
+const pwError = document.getElementById("pw-error");
+
+async function tryPassword(){
+  if(pwInput.value === PASSWORD){
+    await storageSet("unlocked", "true", false);
+    hide(gate);
+    proceedToNameGate();
+  } else {
+    show(pwError);
+  }
+}
+pwSubmit.addEventListener("click", tryPassword);
+pwInput.addEventListener("keydown", e=>{ if(e.key==="Enter") tryPassword(); });
+
+// ============ GATE 2: NAME ============
+const namegate = document.getElementById("namegate");
+const nameSelect = document.getElementById("name-select");
+const nameSubmit = document.getElementById("name-submit");
+NAMES.forEach(n=>{
+  const opt = document.createElement("option");
+  opt.value = n; opt.textContent = n;
+  nameSelect.appendChild(opt);
+});
+
+async function proceedToNameGate(){
+  const savedName = await storageGet("me", false);
+  if(savedName){
+    currentUser = savedName;
+    initApp();
+  } else {
+    show(namegate);
+  }
+}
+
+nameSubmit.addEventListener("click", async ()=>{
+  if(!nameSelect.value) return;
+  currentUser = nameSelect.value;
+  await storageSet("me", currentUser, false);
+  hide(namegate);
+  initApp();
+});
+
+// ============ APP INIT ============
+const loadingEl = document.getElementById("loading");
+const appEl = document.getElementById("app");
+
+async function initApp(){
+  show(loadingEl);
+  document.getElementById("who-label").textContent = currentUser;
+  await loadCustomEvents();
+  renderCalendar();
+  initQuickAdd();
+  await loadAllRsvps();
+  renderTimeline();
+  hide(loadingEl);
+  show(appEl);
+}
+
+async function loadCustomEvents(){
+  const raw = await storageGet("custom-events", true);
+  if(raw){
+    try{ customEvents = JSON.parse(raw); }
+    catch(e){ customEvents = []; }
+  }
+}
+
+async function loadAllRsvps(){
+  await Promise.all(allEvents().map(async ev=>{
+    const raw = await storageGet("rsvp:"+ev.id, true);
+    if(raw){
+      try{ rsvpCache[ev.id] = JSON.parse(raw); }
+      catch(e){ rsvpCache[ev.id] = {}; }
+    } else {
+      rsvpCache[ev.id] = {};
+    }
+  }));
+}
+
+function getStatus(ev){
+  const rec = rsvpCache[ev.id][currentUser];
+  return { note: rec && rec.note ? rec.note : "", fields: (rec && rec.fields) ? rec.fields : {} };
+}
+
+async function saveStatus(ev, patch){
+  if(!rsvpCache[ev.id]) rsvpCache[ev.id] = {};
+  const existing = rsvpCache[ev.id][currentUser] || { note: "", fields: {} };
+  rsvpCache[ev.id][currentUser] = { ...existing, ...patch };
+  await storageSet("rsvp:"+ev.id, JSON.stringify(rsvpCache[ev.id]), true);
+}
+
+function renderTimeline(){
+  const timeline = document.getElementById("timeline");
+  timeline.innerHTML = "";
+  const sorted = allEvents().slice().sort((a,b)=>{
+    const da = parseInt((a.date.match(/(\d+)$/)||[0,0])[1], 10);
+    const db = parseInt((b.date.match(/(\d+)$/)||[0,0])[1], 10);
+    return da - db;
+  });
+  sorted.forEach(ev=>{
+    const card = document.createElement("div");
+    card.className = "event";
+    card.id = "event-" + ev.id;
+    card.innerHTML = `
+      <div class="event-marker"></div>
+      <div class="event-date">${ev.date}</div>
+      <div class="ticket">
+        <h3 class="ticket-title">${ev.emoji} ${ev.title}</h3>
+        <ul class="ticket-details">
+          ${ev.details.map(([label,val])=>`<li><b>${label}</b>${val}</li>`).join("")}
+        </ul>
+        <div class="roster">
+          <div class="roster-label">Confirmed</div>
+          <div class="roster-list">${renderConfirmed(ev)}</div>
+          ${getPersonNames(ev).length ? `
+          <div class="roster-label" style="margin-top:14px;">View a traveler's details</div>
+          <select class="roster-select person-select" data-event="${ev.id}">
+            <option value="">Choose a traveler…</option>
+            ${getPersonNames(ev).map(n=>`<option value="${n}"${n===defaultPersonName(ev) ? " selected" : ""}>${n}</option>`).join("")}
+          </select>
+          <div class="person-detail" data-event="${ev.id}">${renderPersonDetail(ev, defaultPersonName(ev))}</div>
+          ` : ``}
+        </div>
+      </div>
+    `;
+    timeline.appendChild(card);
+  });
+
+  // wire up person-detail dropdowns
+  timeline.querySelectorAll(".person-select").forEach(sel=>{
+    sel.addEventListener("change", ()=>{
+      const ev = allEvents().find(e=>e.id===sel.dataset.event);
+      const panel = sel.closest(".roster").querySelector(".person-detail");
+      if(panel) panel.innerHTML = renderPersonDetail(ev, sel.value);
+    });
+  });
+}
+
+function renderConfirmed(ev){
+  const rec = rsvpCache[ev.id] || {};
+  const extras = Object.entries(rec)
+    .filter(([,r]) => r && r.fields && r.fields["Confirmed"])
+    .map(([name,r]) => `${name} — ${escapeHtml(r.fields["Confirmed"])}`);
+  const staticChips = ev.attendees.slice().sort().map(name=>`<span class="chip">${name}</span>`);
+  const extraChips = extras.map(text=>`<span class="chip">${text}</span>`);
+  if(staticChips.length === 0 && extraChips.length === 0){
+    return `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">Nobody specific — applies to whoever's on that leg</span>`;
+  }
+  return staticChips.concat(extraChips).join("");
+}
+
+function getPersonNames(ev){
+  const submitted = Object.keys(rsvpCache[ev.id] || {});
+  return Array.from(new Set([...ev.attendees, ...submitted, "Paul"])).sort();
+}
+
+function hasSubmittedInfo(ev, name){
+  const rec = (rsvpCache[ev.id] || {})[name];
+  if(!rec) return false;
+  const hasFields = rec.fields && Object.values(rec.fields).some(v => v);
+  return !!(hasFields || rec.note);
+}
+
+function defaultPersonName(ev){
+  if(currentUser && hasSubmittedInfo(ev, currentUser)) return currentUser;
+  return "Paul";
+}
+
+function isConfirmed(ev, name){
+  if(ev.attendees.includes(name)) return true;
+  const rec = rsvpCache[ev.id] || {};
+  return Object.values(rec).some(r=>{
+    if(!r || !r.fields || !r.fields["Confirmed"]) return false;
+    return r.fields["Confirmed"].split(",").map(s=>s.trim()).includes(name);
+  });
+}
+
+function renderPersonDetail(ev, name){
+  if(!name){
+    return `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">Choose a name to view their details</span>`;
+  }
+  const rec = (rsvpCache[ev.id] || {})[name];
+  const items = [];
+  if(rec && rec.fields){
+    Object.entries(rec.fields).forEach(([label,val])=>{
+      if(!val) return;
+      items.push(`<li><b>${label}</b>${escapeHtml(val)}</li>`);
+      if(label === "Address"){
+        const mapUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(val);
+        items.push(`<li><b>Map</b><a href="${mapUrl}" target="_blank" rel="noopener">Open in Google Maps →</a></li>`);
+      }
+    });
+  }
+  let html = "";
+  if(items.length) html += `<ul class="ticket-details">${items.join("")}</ul>`;
+  if(rec && rec.note) html += `<div style="font-size:14px; color:rgba(22,35,63,0.85);">${escapeHtml(rec.note)}</div>`;
+  if(!items.length && !(rec && rec.note)){
+    if(isConfirmed(ev, name)){
+      html = `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">Confirmed for this leg — no additional details added</span>`;
+    } else {
+      html = `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">${name} hasn't added any details yet</span>`;
+    }
+  }
+  return html;
+}
+
+function renderNotes(ev){
+  const rec = rsvpCache[ev.id] || {};
+  const entries = Object.entries(rec).filter(([,r]) => r && (r.note || (r.fields && Object.keys(r.fields).length)));
+  if(entries.length === 0){
+    return `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">No details added yet</span>`;
+  }
+  return entries.sort(([a],[b])=>a.localeCompare(b)).map(([name,r])=>{
+    const parts = [];
+    if(r.fields){
+      Object.entries(r.fields).forEach(([label,val])=>{
+        if(val) parts.push(`${label}: ${escapeHtml(val)}`);
+      });
+    }
+    if(r.note) parts.push(escapeHtml(r.note));
+    return `<span class="chip"><span class="chip-note">${name}:</span> ${parts.join(" · ")}</span>`;
+  }).join("");
+}
+
+function refreshCardDynamic(ev){
+  const cardEl = document.getElementById("event-"+ev.id);
+  if(!cardEl) return;
+  const confirmedList = cardEl.querySelector(".roster-list");
+  if(confirmedList) confirmedList.innerHTML = renderConfirmed(ev);
+
+  const personSelect = cardEl.querySelector(".person-select");
+  if(personSelect){
+    const prevVal = personSelect.value;
+    personSelect.innerHTML = `<option value="">Choose a traveler…</option>` +
+      getPersonNames(ev).map(n=>`<option value="${n}">${n}</option>`).join("");
+    const stillValid = [...personSelect.options].some(o=>o.value===prevVal);
+    const wasOnFallback = (prevVal === "" || prevVal === "Paul");
+    const newValue = (!stillValid || wasOnFallback) ? defaultPersonName(ev) : prevVal;
+    personSelect.value = newValue;
+    const panel = cardEl.querySelector(".person-detail");
+    if(panel) panel.innerHTML = renderPersonDetail(ev, personSelect.value);
+  }
+}
+
+function escapeHtml(str){
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function renderCalendar(){
+  const cal = document.getElementById("calendar");
+  const year = 2026, month = 8; // September (0-indexed)
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const firstWeekday = new Date(year, month, 1).getDay();
+
+  // map day-of-month -> array of event ids, derived from each event's date string
+  const dayMap = {};
+  allEvents().forEach(ev=>{
+    const m = ev.date.match(/(\d+)$/);
+    if(m){
+      const day = parseInt(m[1], 10);
+      if(!dayMap[day]) dayMap[day] = [];
+      dayMap[day].push(ev.id);
+    }
+  });
+
+  const weekdayLabels = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+  let html = `<div class="calendar-title">September 2026</div><div class="calendar-grid">`;
+  weekdayLabels.forEach(w=> html += `<div class="calendar-weekday">${w}</div>`);
+  for(let i=0;i<firstWeekday;i++) html += `<div class="calendar-day"></div>`;
+  for(let d=1; d<=daysInMonth; d++){
+    const evIds = dayMap[d];
+    if(evIds){
+      html += `<div class="calendar-day has-event" data-events="${evIds.join(',')}">${d}</div>`;
+    } else {
+      html += `<div class="calendar-day in-range">${d}</div>`;
+    }
+  }
+  cal.innerHTML = html;
+
+  cal.querySelectorAll(".calendar-day.has-event").forEach(cell=>{
+    cell.addEventListener("click", ()=>{
+      const ids = cell.dataset.events.split(",");
+      const target = document.getElementById("event-" + ids[0]);
+      if(target) target.scrollIntoView({behavior:"smooth", block:"center"});
+    });
+  });
+}
+
+const QUICKADD_IDS = ["transport-hamburg","arr-hamburg","dep-hamburg","arr-munich","dep-munich","arr-berlin","transport-chicago"];
+const QUICKADD_LABELS = {
+  "transport-hamburg": "Transportation to Hamburg",
+  "arr-hamburg": "Hamburg Accommodations",
+  "dep-hamburg": "Transportation to Munich",
+  "arr-munich": "Munich Accommodations",
+  "dep-munich": "Transportation to Berlin",
+  "arr-berlin": "Berlin Accommodations",
+  "transport-chicago": "Transportation to Chicago"
+};
+
+const NEW_EVENT_VALUE = "__new__";
+
+const TRIP_DATES = (function(){
+  const dates = [];
+  const start = new Date(2026, 8, 16); // Sep 16, 2026
+  for(let i=0; i<12; i++){
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const label = d.toLocaleDateString("en-US", { weekday:"short", month:"short", day:"numeric" });
+    dates.push(label);
+  }
+  return dates;
+})();
+
+const HOUR_OPTIONS = Array.from({length:12}, (_,i)=> String(i+1));
+const MINUTE_OPTIONS = Array.from({length:12}, (_,i)=> String(i*5).padStart(2,"0"));
+const AMPM_OPTIONS = ["AM","PM"];
+
+const DATETIME_LABELS = new Set([
+  "Flight departs", "Connects in", "Onward flight", "Flight lands",
+  "Train departs", "Train arrives", "Check-in", "Check-out", "Pick-up time"
+]);
+
+const LOCATION_PLACEHOLDERS = {
+  "Flight departs": "Airport",
+  "Connects in": "Airport",
+  "Onward flight": "Airport",
+  "Flight lands": "Airport",
+  "Train departs": "Station",
+  "Train arrives": "Station",
+  "Check-in": "Location",
+  "Check-out": "Location",
+  "Pick-up time": "Location"
+};
+
+const AIRPORTS = [
+  "Chicago O'Hare (ORD)", "Frankfurt (FRA)", "Hamburg (HAM)",
+  "Munich (MUC)", "Berlin (BER)", "Newark (EWR)", "Other"
+];
+const TRAIN_STATIONS = [
+  "Hamburg Hbf", "München Hbf", "Berlin Hbf", "Other"
+];
+const LOCATION_TYPE = {
+  "Flight departs": "airport",
+  "Connects in": "airport",
+  "Onward flight": "airport",
+  "Flight lands": "airport",
+  "Train departs": "station",
+  "Train arrives": "station"
+};
+
+const TRANSPORT_DEFAULT_MODE = {
+  "transport-hamburg": "plane",
+  "dep-hamburg": "train",
+  "dep-munich": "train",
+  "transport-chicago": "plane"
+};
+const STOPS_DEFAULT = {
+  "transport-hamburg": "onestop",
+  "transport-chicago": "onestop"
+};
+const ACCOMMODATION_IDS = new Set(["arr-hamburg", "arr-munich", "arr-berlin"]);
+const ACCOMMODATION_DEFAULT_TYPE = {
+  "arr-hamburg": "Hotel",
+  "arr-munich": "Airbnb",
+  "arr-berlin": "Hotel"
+};
+const FLIGHT_FIELDS = ["Flight departs", "Connects in", "Onward flight", "Flight lands"];
+const TRAIN_FIELDS = ["Train departs", "Train arrives"];
+const AIRLINES = [
+  "United Airlines", "American Airlines", "Delta Air Lines",
+  "Lufthansa", "Air France", "KLM", "British Airways",
+  "Swiss International Air Lines", "Austrian Airlines", "Turkish Airlines",
+  "Icelandair", "Condor", "Eurowings", "Finnair", "SAS", "Other"
+];
+
+function renderAirlineGroupEl(prefix, status){
+  const airlineLabel = prefix + "Airline";
+  const flightNumLabel = prefix + "Flight number";
+  const seatLabel = prefix + "Seat";
+  const frag = document.createDocumentFragment();
+
+  const existingAirline = status.fields[airlineLabel] || "";
+  const isOther = existingAirline && !AIRLINES.slice(0,-1).includes(existingAirline);
+  const airlineWrap = document.createElement("div");
+  airlineWrap.className = "qa-field";
+  const uid = "qa-airline-" + Math.random().toString(36).slice(2,8);
+  airlineWrap.innerHTML = `
+    <label>${airlineLabel}</label>
+    <select class="quickadd-select qa-airline-select" data-fieldlabel="${airlineLabel}" id="${uid}" style="margin-bottom:0;">
+      <option value="">Select airline…</option>
+      ${AIRLINES.map(a=>`<option value="${a}"${(isOther ? a==="Other" : a===existingAirline) ? " selected" : ""}>${a}</option>`).join("")}
+    </select>
+    <input type="text" class="qa-airline-other" data-fieldlabel="${airlineLabel}" placeholder="Airline name" value="${isOther ? existingAirline.replace(/"/g,'&quot;') : ""}" style="margin-top:8px; ${isOther ? "" : "display:none;"}">
+  `;
+  const airlineSelect = airlineWrap.querySelector(".qa-airline-select");
+  const airlineOther = airlineWrap.querySelector(".qa-airline-other");
+  airlineSelect.addEventListener("change", ()=>{
+    airlineOther.style.display = airlineSelect.value === "Other" ? "" : "none";
+  });
+  frag.appendChild(airlineWrap);
+  frag.appendChild(renderDetailFieldEl(flightNumLabel, "LH 441", status));
+  frag.appendChild(renderDetailFieldEl(seatLabel, "14C", status));
+  return frag;
+}
+
+function renderDetailFieldEl(label, placeholder, status){
+  const wrap = document.createElement("div");
+  const existing = status.fields[label] || "";
+
+  if(DATETIME_LABELS.has(label)){
+    wrap.className = "qa-field qa-datetime";
+    wrap.dataset.dtlabel = label;
+    const dateOptions = `<option value="">Date…</option>` + TRIP_DATES.map(d=>`<option value="${d}">${d}</option>`).join("");
+    const hourOptions = `<option value="">Hr…</option>` + HOUR_OPTIONS.map(h=>`<option value="${h}">${h}</option>`).join("");
+    const minuteOptions = `<option value="">Min…</option>` + MINUTE_OPTIONS.map(m=>`<option value="${m}">${m}</option>`).join("");
+    const ampmOptions = `<option value="">AM/PM</option>` + AMPM_OPTIONS.map(a=>`<option value="${a}">${a}</option>`).join("");
+    const locType = LOCATION_TYPE[label];
+
+    let locHtml;
+    const NO_LOCATION_LABELS = new Set(["Check-in", "Check-out"]);
+    if(NO_LOCATION_LABELS.has(label)){
+      locHtml = "";
+    } else if(locType === "airport" || locType === "station"){
+      const options = locType === "airport" ? AIRPORTS : TRAIN_STATIONS;
+      const optsHtml = `<option value="">${LOCATION_PLACEHOLDERS[label] || "Location"}…</option>` +
+        options.map(o=>`<option value="${o}">${o}</option>`).join("");
+      locHtml = `
+        <select class="qa-dt-loc" data-part="loc">${optsHtml}</select>
+        <input type="text" class="qa-dt-loc-other" data-part="loc-other" placeholder="${locType === "airport" ? "Airport name" : "Station name"}" style="margin-top:6px; display:none;">
+      `;
+    } else {
+      locHtml = `<input type="text" class="qa-dt-loc" data-part="loc" placeholder="${LOCATION_PLACEHOLDERS[label] || "Location"}">`;
+    }
+
+    wrap.innerHTML = `
+      <label>${label}</label>
+      <div class="qa-dt-row">
+        <select class="qa-dt-select" data-part="date">${dateOptions}</select>
+      </div>
+      <div class="qa-dt-time-row">
+        <select class="qa-dt-select" data-part="hour">${hourOptions}</select>
+        <select class="qa-dt-select" data-part="minute">${minuteOptions}</select>
+        <select class="qa-dt-select" data-part="ampm">${ampmOptions}</select>
+      </div>
+      ${locHtml}
+    `;
+
+    if(locType === "airport" || locType === "station"){
+      const locSelect = wrap.querySelector('[data-part="loc"]');
+      const locOther = wrap.querySelector('[data-part="loc-other"]');
+      locSelect.addEventListener("change", ()=>{
+        locOther.style.display = locSelect.value === "Other" ? "" : "none";
+      });
+    }
+  } else if(label === "Type"){
+    wrap.className = "qa-field";
+    const opts = ["Hotel", "Airbnb"];
+    wrap.innerHTML = `<label>Type</label><select data-label="Type" class="quickadd-select" style="margin-bottom:0;">
+      <option value="">Select type…</option>
+      ${opts.map(o=>`<option value="${o}"${existing===o ? " selected" : ""}>${o}</option>`).join("")}
+    </select>`;
+  } else {
+    wrap.className = "qa-field";
+    wrap.innerHTML = `<label>${label}</label><input type="text" data-label="${label}" placeholder="e.g. ${placeholder || ""}" value="${existing.replace(/"/g,'&quot;')}">`;
+  }
+  return wrap;
+}
+
+function populateQuickAddOptions(select){
+  const previousValue = select.value;
+  select.innerHTML = `<option value="">— choose a leg —</option>`;
+  QUICKADD_IDS.forEach(id=>{
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = QUICKADD_LABELS[id];
+    select.appendChild(opt);
+  });
+  if(customEvents.length){
+    const group = document.createElement("optgroup");
+    group.label = "Added by the group";
+    customEvents.forEach(ev=>{
+      const opt = document.createElement("option");
+      opt.value = ev.id;
+      opt.textContent = ev.title;
+      group.appendChild(opt);
+    });
+    select.appendChild(group);
+  }
+  const newOpt = document.createElement("option");
+  newOpt.value = NEW_EVENT_VALUE;
+  newOpt.textContent = "+ Add a new event";
+  select.appendChild(newOpt);
+  if([...select.options].some(o=>o.value===previousValue)) select.value = previousValue;
+}
+
+function initQuickAdd(){
+  const select = document.getElementById("quickadd-select");
+  populateQuickAddOptions(select);
+
+  const fieldsWrap = document.getElementById("quickadd-fields");
+  const saveBtn = document.getElementById("quickadd-save");
+  const saveState = document.getElementById("quickadd-savestate");
+
+  select.addEventListener("change", ()=>{
+    fieldsWrap.innerHTML = "";
+    saveState.classList.remove("show");
+    if(!select.value){ hide(saveBtn); return; }
+
+    if(select.value === NEW_EVENT_VALUE){
+      const dateOptions = `<option value="">Date…</option>` + TRIP_DATES.map(d=>`<option value="${d}">${d}</option>`).join("");
+      const hourOptions = `<option value="">Hr…</option>` + HOUR_OPTIONS.map(h=>`<option value="${h}">${h}</option>`).join("");
+      const minuteOptions = `<option value="">Min…</option>` + MINUTE_OPTIONS.map(m=>`<option value="${m}">${m}</option>`).join("");
+      const ampmOptions = `<option value="">AM/PM</option>` + AMPM_OPTIONS.map(a=>`<option value="${a}">${a}</option>`).join("");
+      fieldsWrap.innerHTML = `
+        <div class="qa-field">
+          <label>Event name</label>
+          <input type="text" data-newfield="title" placeholder="e.g. Farewell dinner">
+        </div>
+        <div class="qa-field">
+          <label>Date</label>
+          <select data-newfield="date" class="quickadd-select" style="margin-bottom:0;">${dateOptions}</select>
+        </div>
+        <div class="qa-field">
+          <label>Time</label>
+          <div class="qa-dt-time-row">
+            <select data-newfield="hour" class="qa-dt-select">${hourOptions}</select>
+            <select data-newfield="minute" class="qa-dt-select">${minuteOptions}</select>
+            <select data-newfield="ampm" class="qa-dt-select">${ampmOptions}</select>
+          </div>
+        </div>
+        <div class="qa-field">
+          <label>Location</label>
+          <input type="text" data-newfield="location" placeholder="e.g. Augustiner-Keller">
+        </div>
+        <div class="qa-field">
+          <label>Details</label>
+          <input type="text" data-newfield="details" placeholder="e.g. Meet in the lobby at 7pm">
+        </div>
+      `;
+      saveBtn.textContent = "Add event";
+      show(saveBtn);
+      return;
+    }
+
+    saveBtn.textContent = "Save";
+    const ev = allEvents().find(e=>e.id===select.value);
+    const status = getStatus(ev);
+
+    const confirmedWrap = document.createElement("div");
+    confirmedWrap.className = "qa-field";
+    const existingConfirmed = status.fields["Confirmed"] || "";
+    const existingNames = existingConfirmed.split(",").map(s=>s.trim()).filter(Boolean);
+    const otherNames = NAMES.filter(n => n !== currentUser);
+    const checkboxesHtml = otherNames.map(n=>{
+      const checked = existingNames.includes(n) ? " checked" : "";
+      const cid = "qa-confirmed-" + n.replace(/[^a-zA-Z0-9]/g,'');
+      return `
+        <label class="qa-checkbox-row" for="${cid}">
+          <input type="checkbox" id="${cid}" class="qa-confirmed-checkbox" value="${n}"${checked}>
+          <span>${n}</span>
+        </label>`;
+    }).join("");
+    confirmedWrap.innerHTML = `<label>Confirmed — who are you with?</label><div class="qa-checkbox-grid" data-label="Confirmed">${checkboxesHtml}</div>`;
+    fieldsWrap.appendChild(confirmedWrap);
+
+    if(ACCOMMODATION_IDS.has(ev.id)){
+      const typeWrap = renderDetailFieldEl("Type", "", status);
+      fieldsWrap.appendChild(typeWrap);
+      const typeSelect = typeWrap.querySelector('select[data-label="Type"]');
+      const defaultType = status.fields["Type"] || ACCOMMODATION_DEFAULT_TYPE[ev.id] || "Hotel";
+      typeSelect.value = defaultType;
+
+      const nameFieldWrap = document.createElement("div");
+      fieldsWrap.appendChild(nameFieldWrap);
+
+      const renderNameField = (type)=>{
+        nameFieldWrap.innerHTML = "";
+        const label = type === "Airbnb" ? "Listing" : "Hotel Name";
+        const existingVal = status.fields[label] || status.fields["Hotel Name"] || status.fields["Listing"] || status.fields["Hotel"] || "";
+        const tempStatus = { fields: { [label]: existingVal } };
+        const placeholder = type === "Airbnb" ? "Home in Munich" : "The Westin Hamburg Elbphilharmonie";
+        nameFieldWrap.appendChild(renderDetailFieldEl(label, placeholder, tempStatus));
+      };
+      renderNameField(defaultType);
+      typeSelect.addEventListener("change", ()=> renderNameField(typeSelect.value || defaultType));
+    }
+
+    if(TRANSPORT_DEFAULT_MODE[ev.id]){
+      const existingFlight = FLIGHT_FIELDS.some(l => status.fields[l]);
+      const existingTrain = TRAIN_FIELDS.some(l => status.fields[l]);
+      const initialMode = existingFlight ? "plane" : existingTrain ? "train" : TRANSPORT_DEFAULT_MODE[ev.id];
+
+      const modeWrap = document.createElement("div");
+      modeWrap.className = "qa-field";
+      modeWrap.innerHTML = `
+        <label>How are you traveling this leg?</label>
+        <select class="quickadd-select" id="qa-mode-select" style="margin-bottom:0;">
+          <option value="plane"${initialMode==="plane" ? " selected" : ""}>✈️ Plane</option>
+          <option value="train"${initialMode==="train" ? " selected" : ""}>🚆 Train</option>
+        </select>
+      `;
+      fieldsWrap.appendChild(modeWrap);
+
+      const modeFieldsWrap = document.createElement("div");
+      modeFieldsWrap.id = "qa-mode-fields";
+      fieldsWrap.appendChild(modeFieldsWrap);
+
+      const renderModeFields = (mode)=>{
+        modeFieldsWrap.innerHTML = "";
+        if(mode === "plane"){
+          const existingConnects = status.fields["Connects in"] || status.fields["Onward flight"];
+          const defaultStops = existingConnects ? "onestop" : (STOPS_DEFAULT[ev.id] || "nonstop");
+
+          const stopsWrap = document.createElement("div");
+          stopsWrap.className = "qa-field";
+          stopsWrap.innerHTML = `
+            <label>Non-stop or 1-stop?</label>
+            <select class="quickadd-select" id="qa-stops-select" style="margin-bottom:0;">
+              <option value="nonstop"${defaultStops==="nonstop" ? " selected" : ""}>Non-stop</option>
+              <option value="onestop"${defaultStops==="onestop" ? " selected" : ""}>1-stop</option>
+            </select>
+          `;
+          modeFieldsWrap.appendChild(stopsWrap);
+
+          const planeLegsWrap = document.createElement("div");
+          modeFieldsWrap.appendChild(planeLegsWrap);
+
+          const renderPlaneLegs = (stops)=>{
+            planeLegsWrap.innerHTML = "";
+            planeLegsWrap.appendChild(renderDetailFieldEl("Flight departs", "", status));
+            planeLegsWrap.appendChild(renderAirlineGroupEl("", status));
+            if(stops === "onestop"){
+              planeLegsWrap.appendChild(renderDetailFieldEl("Connects in", "", status));
+              planeLegsWrap.appendChild(renderDetailFieldEl("Onward flight", "", status));
+              planeLegsWrap.appendChild(renderAirlineGroupEl("Onward ", status));
+            }
+            planeLegsWrap.appendChild(renderDetailFieldEl("Flight lands", "", status));
+          };
+          renderPlaneLegs(defaultStops);
+          stopsWrap.querySelector("#qa-stops-select").addEventListener("change", (e)=>{
+            renderPlaneLegs(e.target.value);
+          });
+        } else {
+          TRAIN_FIELDS.forEach(label=>{
+            modeFieldsWrap.appendChild(renderDetailFieldEl(label, "", status));
+          });
+          modeFieldsWrap.appendChild(renderDetailFieldEl("Train number", "ICE 587", status));
+          modeFieldsWrap.appendChild(renderDetailFieldEl("Car", "11", status));
+          modeFieldsWrap.appendChild(renderDetailFieldEl("Seat", "85", status));
+        }
+      };
+      renderModeFields(initialMode);
+      modeWrap.querySelector("#qa-mode-select").addEventListener("change", (e)=>{
+        renderModeFields(e.target.value);
+      });
+    }
+
+    ev.details.forEach(([label, placeholder], i)=>{
+      if(label === "Map" || label === "Listing link" || label === "Booking link") return; // link only, not user-editable
+      if((label === "Type" || label === "Hotel" || label === "Listing") && ACCOMMODATION_IDS.has(ev.id)) return; // handled above
+      const isTransportDtField = TRANSPORT_DEFAULT_MODE[ev.id] && (FLIGHT_FIELDS.includes(label) || TRAIN_FIELDS.includes(label) || label === "Train / car / seat");
+      if(isTransportDtField) return; // handled by mode picker above
+      const wrap = renderDetailFieldEl(label, placeholder, status);
+      fieldsWrap.appendChild(wrap);
+    });
+    show(saveBtn);
+  });
+
+  saveBtn.addEventListener("click", async ()=>{
+    if(!select.value) return;
+
+    if(select.value === NEW_EVENT_VALUE){
+      const title = fieldsWrap.querySelector('[data-newfield="title"]').value.trim();
+      const date = fieldsWrap.querySelector('[data-newfield="date"]').value;
+      const hour = fieldsWrap.querySelector('[data-newfield="hour"]').value;
+      const minute = fieldsWrap.querySelector('[data-newfield="minute"]').value;
+      const ampm = fieldsWrap.querySelector('[data-newfield="ampm"]').value;
+      const location = fieldsWrap.querySelector('[data-newfield="location"]').value.trim();
+      const details = fieldsWrap.querySelector('[data-newfield="details"]').value.trim();
+      if(!title || !date) return;
+      const time = (hour && minute && ampm) ? `${hour}:${minute} ${ampm}` : "";
+      const id = "custom-" + title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') + "-" + Date.now().toString(36);
+      const detailsArr = [];
+      if(time) detailsArr.push(["Time", time]);
+      if(location) detailsArr.push(["Location", location]);
+      if(details) detailsArr.push(["Details", details]);
+      const newEv = {
+        id, date, title, emoji: "📌",
+        details: detailsArr,
+        attendees: []
+      };
+      saveBtn.disabled = true;
+      customEvents.push(newEv);
+      await storageSet("custom-events", JSON.stringify(customEvents), true);
+      rsvpCache[id] = {};
+      saveBtn.disabled = false;
+      saveState.classList.add("show");
+      setTimeout(()=>saveState.classList.remove("show"), 1800);
+
+      populateQuickAddOptions(select);
+      select.value = "";
+      fieldsWrap.innerHTML = "";
+      hide(saveBtn);
+
+      renderCalendar();
+      renderTimeline();
+      const target = document.getElementById("event-"+id);
+      if(target) target.scrollIntoView({behavior:"smooth", block:"center"});
+      return;
+    }
+
+    const ev = allEvents().find(e=>e.id===select.value);
+    const fields = {};
+    const inputs = fieldsWrap.querySelectorAll("input[data-label]");
+    inputs.forEach(inp=>{
+      if(inp.value.trim()) fields[inp.dataset.label] = inp.value.trim();
+    });
+    fieldsWrap.querySelectorAll("select[data-label]").forEach(sel=>{
+      if(sel.value.trim()) fields[sel.dataset.label] = sel.value.trim();
+    });
+    fieldsWrap.querySelectorAll(".qa-datetime").forEach(group=>{
+      const label = group.dataset.dtlabel;
+      const date = group.querySelector('[data-part="date"]').value;
+      const hour = group.querySelector('[data-part="hour"]').value;
+      const minute = group.querySelector('[data-part="minute"]').value;
+      const ampm = group.querySelector('[data-part="ampm"]').value;
+      const time = (hour && minute && ampm) ? `${hour}:${minute} ${ampm}` : "";
+      const locEl = group.querySelector('[data-part="loc"]');
+      let loc = "";
+      if(locEl){
+        if(locEl.tagName === "SELECT" && locEl.value === "Other"){
+          const other = group.querySelector('[data-part="loc-other"]');
+          loc = other ? other.value.trim() : "";
+        } else {
+          loc = locEl.value.trim();
+        }
+      }
+      if(date && time){
+        fields[label] = `${date}, ${time}` + (loc ? ` · ${loc}` : "");
+      } else if(loc){
+        fields[label] = loc;
+      }
+    });
+    const confirmedGrid = fieldsWrap.querySelector(".qa-checkbox-grid[data-label]");
+    if(confirmedGrid){
+      const chosen = [...confirmedGrid.querySelectorAll(".qa-confirmed-checkbox:checked")].map(c=>c.value);
+      if(chosen.length) fields[confirmedGrid.dataset.label] = chosen.join(", ");
+    }
+    fieldsWrap.querySelectorAll(".qa-airline-select").forEach(airlineSelect=>{
+      const fieldLabel = airlineSelect.dataset.fieldlabel;
+      if(!airlineSelect.value) return;
+      if(airlineSelect.value === "Other"){
+        const other = airlineSelect.closest(".qa-field").querySelector(".qa-airline-other");
+        const val = other ? other.value.trim() : "";
+        if(val) fields[fieldLabel] = val;
+      } else {
+        fields[fieldLabel] = airlineSelect.value;
+      }
+    });
+    saveBtn.disabled = true;
+    await saveStatus(ev, { fields });
+    saveBtn.disabled = false;
+    saveState.classList.add("show");
+    setTimeout(()=>saveState.classList.remove("show"), 1800);
+    // refresh that card's dynamic sections, then jump to it
+    refreshCardDynamic(ev);
+    const target = document.getElementById("event-"+ev.id);
+    if(target) target.scrollIntoView({behavior:"smooth", block:"center"});
+  });
+}
+
+// ============ USER BAR ACTIONS ============
+document.getElementById("switch-name").addEventListener("click", async ()=>{
+  currentUser = null;
+  hide(appEl);
+  show(namegate);
+});
+document.getElementById("lock-again").addEventListener("click", async ()=>{
+  await storageSet("unlocked", "false", false);
+  hide(appEl);
+  location.reload();
+});
+
+// ============ BOOT ============
+(async function boot(){
+  const unlocked = await storageGet("unlocked", false);
+  if(unlocked === "true"){
+    hide(gate);
+    await proceedToNameGate();
+  }
+})();
+</script>
+</body>
+</html>
