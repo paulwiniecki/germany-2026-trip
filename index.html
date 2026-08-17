@@ -786,13 +786,6 @@ function renderPersonDetail(ev, name){
   let html = "";
   if(items.length) html += `<ul class="ticket-details">${items.join("")}</ul>`;
   if(rec && rec.note) html += `<div style="font-size:14px; color:rgba(22,35,63,0.85);">${escapeHtml(rec.note)}</div>`;
-  if(!items.length && !(rec && rec.note)){
-    if(isConfirmed(ev, name)){
-      html = `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">Confirmed for this leg — no additional details added</span>`;
-    } else {
-      html = `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">${name} hasn't added any details yet</span>`;
-    }
-  }
   return html;
 }
 
