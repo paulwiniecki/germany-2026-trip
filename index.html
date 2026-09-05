@@ -378,14 +378,29 @@
   .recs-legend{ display:flex; flex-wrap:wrap; gap: 14px; justify-content:center; margin-bottom: 26px; }
   .recs-legend-item{ display:flex; align-items:center; gap:6px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color: var(--parchment-dim); text-transform:uppercase; letter-spacing:0.04em; }
   .recs-dot{ width:11px; height:11px; border-radius:50%; display:inline-block; border: 2px solid #fff; }
-  .recs-star{ width:0; height:0; display:inline-block; border-left:6px solid transparent; border-right:6px solid transparent; border-bottom:11px solid #FFD700; }
+  .recs-star-emoji{ font-size:13px; line-height:1; }
 
-  .recs-category{ margin-bottom: 22px; }
-  .recs-category-title{
-    font-family:'Bebas Neue', sans-serif; font-size:22px; letter-spacing:0.02em; color:#fff;
-    display:flex; align-items:center; gap:8px; margin-bottom:10px; padding-bottom:6px; border-bottom: 1px solid var(--line);
+  .recs-map-controls{ display:flex; justify-content:center; margin-bottom: 16px; }
+  .recs-locate-btn{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.04em;
+    background: var(--parchment); color: var(--ink); border: none; border-radius: 4px;
+    padding: 8px 16px; cursor:pointer;
   }
-  .recs-place-list{ list-style:none; margin:0; padding:0; }
+  .recs-locate-btn:hover{ background:#fff; }
+  .recs-locate-btn:disabled{ opacity:0.6; cursor:default; }
+
+  .recs-category{ margin-bottom: 10px; }
+  .recs-category > summary{
+    font-family:'Bebas Neue', sans-serif; font-size:22px; letter-spacing:0.02em; color:#fff;
+    display:flex; align-items:center; gap:8px; padding: 10px 4px; border-bottom: 1px solid var(--line);
+    cursor:pointer; list-style:none; user-select:none;
+  }
+  .recs-category > summary::-webkit-details-marker{ display:none; }
+  .recs-category > summary::after{
+    content:"▾"; margin-left:auto; font-size:16px; color: var(--parchment-dim); transition: transform 0.15s ease;
+  }
+  .recs-category[open] > summary::after{ transform: rotate(180deg); }
+  .recs-place-list{ list-style:none; margin:10px 0 0; padding:0; }
   .recs-place-list li{
     background: var(--parchment); border-radius:4px; padding: 10px 14px; margin-bottom: 8px;
     display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
@@ -468,14 +483,17 @@
   <section class="recs-section" id="berlin-recs">
     <div class="recs-header">
       <div class="recs-eyebrow">Berlin</div>
-      <h2 class="recs-title">Group Recommendations</h2>
-      <div class="recs-sub">Cafes, bars, desserts & dinner spots the group has bookmarked</div>
+      <h2 class="recs-title">Recommendations</h2>
+      <div class="recs-sub">Cafes, bars, desserts & dinner spots</div>
     </div>
     <div id="recs-map" class="recs-map"></div>
+    <div class="recs-map-controls">
+      <button id="recs-locate-btn" class="recs-locate-btn">📍 Show my location</button>
+    </div>
     <div class="recs-legend">
-      <span class="recs-legend-item"><span class="recs-star"></span> Hotel</span>
-      <span class="recs-legend-item"><span class="recs-dot" style="background:#C97B2E;"></span> Cafes</span>
+      <span class="recs-legend-item"><span class="recs-star-emoji">⭐</span> Hotel</span>
       <span class="recs-legend-item"><span class="recs-dot" style="background:#7A2048;"></span> Bars</span>
+      <span class="recs-legend-item"><span class="recs-dot" style="background:#C97B2E;"></span> Cafes</span>
       <span class="recs-legend-item"><span class="recs-dot" style="background:#D6558C;"></span> Desserts</span>
       <span class="recs-legend-item"><span class="recs-dot" style="background:#2E7D5B;"></span> Lunch &amp; Dinner</span>
     </div>
@@ -1536,31 +1554,14 @@ async function initBerlinRecs(){
   const listEl = document.getElementById("recs-list");
   if(!mapEl || typeof L === "undefined") return;
 
-  // Load cached coordinates from Firestore (shared)
+  // Load cached coordinates from Firestore (shared) — instant if already geocoded before
   let coordCache = {};
   const raw = await storageGet("place-coordinates", true);
   if(raw){
     try{ coordCache = JSON.parse(raw); } catch(e){ coordCache = {}; }
   }
 
-  // Geocode the hotel + any places missing from the cache, one at a time (Nominatim rate limit)
-  let cacheChanged = false;
-  if(!coordCache["__hotel__"]){
-    const hotelCoord = await geocodeAddress(RECS_HOTEL.address);
-    if(hotelCoord){ coordCache["__hotel__"] = hotelCoord; cacheChanged = true; }
-    await sleep(1100);
-  }
-  for(const place of RECS_PLACES){
-    if(coordCache[place.name]) continue;
-    const coord = await geocodeAddress(place.address);
-    if(coord){ coordCache[place.name] = coord; cacheChanged = true; }
-    await sleep(1100);
-  }
-  if(cacheChanged){
-    await storageSet("place-coordinates", JSON.stringify(coordCache), true);
-  }
-
-  // Build the map
+  // Render the map immediately with whatever's already cached
   const center = coordCache["__hotel__"] || { lat: 52.5200, lng: 13.4050 };
   const map = L.map(mapEl, { scrollWheelZoom: false }).setView([center.lat, center.lng], 13);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -1568,8 +1569,9 @@ async function initBerlinRecs(){
     maxZoom: 19
   }).addTo(map);
 
-  if(coordCache["__hotel__"]){
+  function addHotelMarker(){
     const hc = coordCache["__hotel__"];
+    if(!hc) return;
     const starIcon = L.divIcon({
       className: "",
       html: '<div style="font-size:26px; line-height:1; transform:translate(-50%,-90%);">⭐</div>',
@@ -1580,7 +1582,7 @@ async function initBerlinRecs(){
       .bindPopup(`<b>Hotel</b>${RECS_HOTEL.name}<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(RECS_HOTEL.address)}" target="_blank" rel="noopener">Open in Google Maps →</a>`);
   }
 
-  RECS_PLACES.forEach(place=>{
+  function addPlaceMarker(place){
     const c = coordCache[place.name];
     if(!c) return;
     const color = RECS_CATEGORY_COLORS[place.category];
@@ -1594,25 +1596,96 @@ async function initBerlinRecs(){
     L.marker([c.lat, c.lng], { icon: dotIcon })
       .addTo(map)
       .bindPopup(`<b>${RECS_CATEGORY_LABELS[place.category]}</b>${place.name}<br><a href="${mapsUrl}" target="_blank" rel="noopener">Open in Google Maps →</a>`);
-  });
+  }
 
-  // Build the categorized list
-  const categories = ["cafe", "bar", "dessert", "lunch_dinner"];
+  addHotelMarker();
+  RECS_PLACES.forEach(addPlaceMarker);
+
+  // Build the categorized list immediately — this doesn't need coordinates, just the address for the link
+  const categories = ["bar", "cafe", "dessert", "lunch_dinner"];
   let html = "";
   categories.forEach(cat=>{
-    const places = RECS_PLACES.filter(p=>p.category===cat);
+    const places = RECS_PLACES.filter(p=>p.category===cat).slice().sort((a,b)=>a.name.localeCompare(b.name));
     if(!places.length) return;
-    html += `<div class="recs-category">
-      <div class="recs-category-title"><span class="recs-dot" style="background:${RECS_CATEGORY_COLORS[cat]};"></span>${RECS_CATEGORY_LABELS[cat]}</div>
+    html += `<details class="recs-category">
+      <summary><span class="recs-dot" style="background:${RECS_CATEGORY_COLORS[cat]};"></span>${RECS_CATEGORY_LABELS[cat]}</summary>
       <ul class="recs-place-list">
         ${places.map(p=>{
           const mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(p.address);
           return `<li><span class="recs-place-name">${p.name}</span><a class="recs-place-link" href="${mapsUrl}" target="_blank" rel="noopener">Open in Maps →</a></li>`;
         }).join("")}
       </ul>
-    </div>`;
+    </details>`;
   });
   listEl.innerHTML = html;
+
+  // "Show my location" button
+  const locateBtn = document.getElementById("recs-locate-btn");
+  if(locateBtn){
+    locateBtn.addEventListener("click", ()=>{
+      if(!navigator.geolocation){
+        locateBtn.textContent = "Location not supported";
+        return;
+      }
+      locateBtn.disabled = true;
+      locateBtn.textContent = "Locating…";
+      navigator.geolocation.getCurrentPosition(
+        (pos)=>{
+          const { latitude, longitude } = pos.coords;
+          const meIcon = L.divIcon({
+            className: "",
+            html: '<div style="width:16px;height:16px;border-radius:50%;background:#1a73e8;border:3px solid #fff;box-shadow:0 0 0 2px #1a73e8, 0 2px 6px rgba(0,0,0,0.4);"></div>',
+            iconSize: [16,16],
+            iconAnchor: [8,8]
+          });
+          L.marker([latitude, longitude], { icon: meIcon, zIndexOffset: 1000 })
+            .addTo(map)
+            .bindPopup("You are here")
+            .openPopup();
+          map.setView([latitude, longitude], 14);
+          locateBtn.textContent = "📍 Show my location";
+          locateBtn.disabled = false;
+        },
+        (err)=>{
+          locateBtn.textContent = "Couldn't get location";
+          setTimeout(()=>{ locateBtn.textContent = "📍 Show my location"; locateBtn.disabled = false; }, 2500);
+        }
+      );
+    });
+  }
+
+  // Geocode anything missing, one at a time in the background — map/list already usable meanwhile
+  const missingHotel = !coordCache["__hotel__"];
+  const missingPlaces = RECS_PLACES.filter(p => !coordCache[p.name]);
+  const totalMissing = (missingHotel ? 1 : 0) + missingPlaces.length;
+  if(totalMissing > 0){
+    const statusEl = document.createElement("div");
+    statusEl.className = "recs-loading";
+    statusEl.textContent = `Locating ${totalMissing} more place${totalMissing===1?"":"s"} on the map…`;
+    mapEl.insertAdjacentElement("afterend", statusEl);
+
+    (async ()=>{
+      if(missingHotel){
+        const hc = await geocodeAddress(RECS_HOTEL.address);
+        if(hc){
+          coordCache["__hotel__"] = hc;
+          addHotelMarker();
+          await storageSet("place-coordinates", JSON.stringify(coordCache), true);
+        }
+        await sleep(1100);
+      }
+      for(const place of missingPlaces){
+        const c = await geocodeAddress(place.address);
+        if(c){
+          coordCache[place.name] = c;
+          addPlaceMarker(place);
+          await storageSet("place-coordinates", JSON.stringify(coordCache), true);
+        }
+        await sleep(1100);
+      }
+      statusEl.remove();
+    })();
+  }
 }
 
 // ============ BOOT ============
