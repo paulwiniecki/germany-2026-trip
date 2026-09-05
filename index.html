@@ -403,8 +403,9 @@
   .recs-place-list{ list-style:none; margin:10px 0 0; padding:0; }
   .recs-place-list li{
     background: var(--parchment); border-radius:4px; padding: 10px 14px; margin-bottom: 8px;
-    display:flex; flex-direction:column; gap: 3px;
+    display:flex; flex-direction:column; gap: 3px; cursor:pointer; transition: background 0.15s ease, transform 0.1s ease;
   }
+  .recs-place-list li:hover, .recs-place-list li:focus{ background:#fff; outline:none; transform: translateX(2px); }
   .recs-place-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
   .recs-place-name-row{ display:flex; align-items:baseline; gap:7px; flex-wrap:wrap; }
   .recs-place-name{ font-size:14.5px; color: var(--ink); font-weight:600; }
@@ -1592,6 +1593,8 @@ async function initBerlinRecs(){
       .bindPopup(`<b>Hotel</b>${RECS_HOTEL.name}<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(RECS_HOTEL.address)}" target="_blank" rel="noopener">Open in Google Maps →</a>`);
   }
 
+  const placeMarkers = {};
+
   function addPlaceMarker(place){
     const c = coordCache[place.name];
     if(!c) return;
@@ -1604,9 +1607,10 @@ async function initBerlinRecs(){
       iconAnchor: [12,12]
     });
     const mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(place.address);
-    L.marker([c.lat, c.lng], { icon: dotIcon })
+    const marker = L.marker([c.lat, c.lng], { icon: dotIcon })
       .addTo(map)
       .bindPopup(`<b>${RECS_CATEGORY_LABELS[place.category]}</b>${place.name}${place.rating ? " · ★ " + place.rating.toFixed(1) : ""}${place.desc ? `<br><span style="opacity:0.75;">${place.desc}</span>` : ""}<br><a href="${mapsUrl}" target="_blank" rel="noopener">Open in Google Maps →</a>`);
+    placeMarkers[place.name] = marker;
   }
 
   addHotelMarker();
@@ -1623,13 +1627,14 @@ async function initBerlinRecs(){
       <ul class="recs-place-list">
         ${places.map(p=>{
           const mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(p.address);
-          return `<li>
+          const idx = RECS_PLACES.indexOf(p);
+          return `<li data-place-idx="${idx}" class="recs-place-item" tabindex="0" role="button">
             <div class="recs-place-top">
               <div class="recs-place-name-row">
                 <span class="recs-place-name">${p.name}</span>
                 ${p.rating ? `<span class="recs-place-rating">★ ${p.rating.toFixed(1)}</span>` : ""}
               </div>
-              <a class="recs-place-link" href="${mapsUrl}" target="_blank" rel="noopener">Open in Maps →</a>
+              <a class="recs-place-link" href="${mapsUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open in Maps →</a>
             </div>
             ${p.desc ? `<div class="recs-place-desc">${p.desc}</div>` : ""}
           </li>`;
@@ -1638,6 +1643,24 @@ async function initBerlinRecs(){
     </details>`;
   });
   listEl.innerHTML = html;
+
+  // Clicking a place in the list pans the map to it and opens its popup
+  listEl.addEventListener("click", (e)=>{
+    const li = e.target.closest("li[data-place-idx]");
+    if(!li) return;
+    const place = RECS_PLACES[parseInt(li.dataset.placeIdx, 10)];
+    const marker = place && placeMarkers[place.name];
+    if(!marker) return; // not geocoded yet
+    mapEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    map.setView(marker.getLatLng(), 16);
+    marker.openPopup();
+  });
+  listEl.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" || e.key === " "){
+      const li = e.target.closest("li[data-place-idx]");
+      if(li){ e.preventDefault(); li.click(); }
+    }
+  });
 
   // "Show my location" button
   const locateBtn = document.getElementById("recs-locate-btn");
