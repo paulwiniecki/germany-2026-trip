@@ -377,7 +377,7 @@
 
   .recs-legend{ display:flex; flex-wrap:wrap; gap: 14px; justify-content:center; margin-bottom: 26px; }
   .recs-legend-item{ display:flex; align-items:center; gap:6px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color: var(--parchment-dim); text-transform:uppercase; letter-spacing:0.04em; }
-  .recs-dot{ width:11px; height:11px; border-radius:50%; display:inline-block; border: 2px solid #fff; }
+  .recs-dot{ width:19px; height:19px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; border: 2px solid #fff; font-size:10px; line-height:1; }
   .recs-star-emoji{ font-size:13px; line-height:1; }
 
   .recs-map-controls{ display:flex; justify-content:center; margin-bottom: 16px; }
@@ -496,10 +496,10 @@
     </div>
     <div class="recs-legend">
       <span class="recs-legend-item"><span class="recs-star-emoji">⭐</span> Hotel</span>
-      <span class="recs-legend-item"><span class="recs-dot" style="background:#7A2048;"></span> Bars</span>
-      <span class="recs-legend-item"><span class="recs-dot" style="background:#C97B2E;"></span> Cafes</span>
-      <span class="recs-legend-item"><span class="recs-dot" style="background:#D6558C;"></span> Desserts</span>
-      <span class="recs-legend-item"><span class="recs-dot" style="background:#2E7D5B;"></span> Lunch &amp; Dinner</span>
+      <span class="recs-legend-item"><span class="recs-dot" style="background:#7A2048;">🍸</span> Bars</span>
+      <span class="recs-legend-item"><span class="recs-dot" style="background:#C97B2E;">☕</span> Cafes</span>
+      <span class="recs-legend-item"><span class="recs-dot" style="background:#D6558C;">🍦</span> Desserts</span>
+      <span class="recs-legend-item"><span class="recs-dot" style="background:#2E7D5B;">🍽️</span> Lunch &amp; Dinner</span>
     </div>
     <div id="recs-list"><div class="recs-loading">Loading recommendations…</div></div>
   </section>
@@ -1489,6 +1489,12 @@ const RECS_CATEGORY_LABELS = {
   dessert: "Desserts",
   lunch_dinner: "Lunch & Dinner"
 };
+const RECS_CATEGORY_ICONS = {
+  cafe: "☕",
+  bar: "🍸",
+  dessert: "🍦",
+  lunch_dinner: "🍽️"
+};
 
 const RECS_PLACES = [
   // Bars
@@ -1590,11 +1596,12 @@ async function initBerlinRecs(){
     const c = coordCache[place.name];
     if(!c) return;
     const color = RECS_CATEGORY_COLORS[place.category];
+    const icon = RECS_CATEGORY_ICONS[place.category];
     const dotIcon = L.divIcon({
       className: "",
-      html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.4);"></div>`,
-      iconSize: [14,14],
-      iconAnchor: [7,7]
+      html: `<div style="width:24px;height:24px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;">${icon}</div>`,
+      iconSize: [24,24],
+      iconAnchor: [12,12]
     });
     const mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(place.address);
     L.marker([c.lat, c.lng], { icon: dotIcon })
@@ -1612,7 +1619,7 @@ async function initBerlinRecs(){
     const places = RECS_PLACES.filter(p=>p.category===cat).slice().sort((a,b)=>a.name.localeCompare(b.name));
     if(!places.length) return;
     html += `<details class="recs-category">
-      <summary><span class="recs-dot" style="background:${RECS_CATEGORY_COLORS[cat]};"></span>${RECS_CATEGORY_LABELS[cat]}</summary>
+      <summary><span class="recs-dot" style="background:${RECS_CATEGORY_COLORS[cat]};">${RECS_CATEGORY_ICONS[cat]}</span>${RECS_CATEGORY_LABELS[cat]}</summary>
       <ul class="recs-place-list">
         ${places.map(p=>{
           const mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(p.address);
