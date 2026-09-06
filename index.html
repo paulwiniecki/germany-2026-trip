@@ -339,6 +339,11 @@
   .ticket-details a{ color: var(--green); font-weight: 600; text-decoration: none; }
   .ticket-details a:hover{ text-decoration: underline; }
 
+  .transport-summary{ width:100%; border-collapse:collapse; margin: 0 0 14px; font-family:'IBM Plex Mono',monospace; font-size:12px; }
+  .transport-summary th{ text-align:left; text-transform:uppercase; font-size:10.5px; letter-spacing:0.03em; color: rgba(10,68,120,0.5); padding: 0 8px 6px 0; border-bottom: 1px solid rgba(10,68,120,0.15); }
+  .transport-summary td{ padding: 6px 8px 6px 0; border-bottom: 1px solid rgba(10,68,120,0.08); color: var(--ink); vertical-align:top; }
+  .transport-summary tr:last-child td{ border-bottom: none; }
+
   .save-btn{ width:auto; padding: 9px 16px; font-size:11px; margin-top: 8px; }
   .save-state{ font-family:'IBM Plex Mono',monospace; font-size: 11px; color: var(--green); margin-left: 10px; opacity:0; transition: opacity .3s; }
   .save-state.show{ opacity:1; }
@@ -778,6 +783,65 @@ async function loadCustomEvents(){
   }
 }
 
+// Known booked transportation info, seeded in as a fallback for anyone who hasn't
+// submitted their own entry yet (a live submission always takes priority over this).
+const SEED_RSVPS = {
+  "transport-hamburg": {
+    "Kathryn": { fields: {
+      "Flight departs": "Wed 9/16, 4:05pm · ORD",
+      "Connects in": "Frankfurt — lands Thu 9/17, 7:25am",
+      "Onward flight": "Thu 9/17, 10:00am from Frankfurt",
+      "Flight lands": "Thu 9/17, 11:05am · HAM"
+    }},
+    "Paul": { fields: {
+      "Flight departs": "Wed 9/16, 4:05pm · ORD",
+      "Connects in": "Frankfurt — lands Thu 9/17, 7:25am",
+      "Onward flight": "Thu 9/17, 10:00am from Frankfurt",
+      "Flight lands": "Thu 9/17, 11:05am · HAM"
+    }}
+  },
+  "dep-hamburg": {
+    "Kathryn": { fields: {
+      "Train number": "ICE 587",
+      "Train departs": "11:01am · Hamburg Hbf",
+      "Train arrives": "4:49pm · München Hbf"
+    }},
+    "Paul": { fields: {
+      "Train number": "ICE 587",
+      "Train departs": "11:01am · Hamburg Hbf",
+      "Train arrives": "4:49pm · München Hbf"
+    }}
+  },
+  "dep-munich": {
+    "Paul": { fields: {
+      "Train number": "ICE 1008",
+      "Train departs": "11:18am · München Hbf",
+      "Train arrives": "3:23pm · Berlin Hbf"
+    }}
+  },
+  "transport-chicago": {
+    "Paul": { fields: {
+      "Flight departs": "Sun 9/27, 9:50am · BER",
+      "Connects in": "Newark (EWR) — lands 12:50pm",
+      "Onward flight": "Sun 9/27, 2:50pm from Newark",
+      "Flight lands": "Sun 9/27, 4:34pm · ORD"
+    }}
+  }
+};
+
+function applySeedRsvps(){
+  Object.entries(SEED_RSVPS).forEach(([eventId, people])=>{
+    if(!rsvpCache[eventId]) rsvpCache[eventId] = {};
+    Object.entries(people).forEach(([name, seedRec])=>{
+      const existing = rsvpCache[eventId][name];
+      const hasLiveContent = existing && ((existing.fields && Object.values(existing.fields).some(v=>v)) || existing.note);
+      if(!hasLiveContent){
+        rsvpCache[eventId][name] = { note: (existing && existing.note) || "", fields: { ...seedRec.fields, ...(existing && existing.fields) } };
+      }
+    });
+  });
+}
+
 async function loadAllRsvps(){
   await Promise.all(allEvents().map(async ev=>{
     const raw = await storageGet("rsvp:"+ev.id, true);
@@ -788,6 +852,7 @@ async function loadAllRsvps(){
       rsvpCache[ev.id] = {};
     }
   }));
+  applySeedRsvps();
 }
 
 function getStatus(ev){
@@ -820,8 +885,9 @@ function renderTimeline(){
       <div class="ticket">
         <h3 class="ticket-title">${ev.emoji} ${ev.title}</h3>
         <ul class="ticket-details">
-          ${ev.details.map(([label,val])=>`<li><b>${label}</b>${val}</li>`).join("")}
+          ${(TRANSPORT_IDS.has(ev.id) ? [] : ev.details).map(([label,val])=>`<li><b>${label}</b>${val}</li>`).join("")}
         </ul>
+        ${TRANSPORT_IDS.has(ev.id) ? renderTravelerSummary(ev) : ""}
         <div class="roster">
           <div class="roster-label">Confirmed</div>
           <div class="roster-list">${renderConfirmed(ev)}</div>
@@ -849,21 +915,75 @@ function renderTimeline(){
   });
 }
 
-function renderConfirmed(ev){
+function getConfirmedNames(ev){
   const rec = rsvpCache[ev.id] || {};
   const confirmedNames = new Set(ev.attendees);
   Object.entries(rec).forEach(([name, r])=>{
     if(!r) return;
     const hasFields = r.fields && Object.values(r.fields).some(v => v);
-    if(hasFields || r.note) confirmedNames.add(name); // submitting any details implies you're confirmed
+    if(hasFields || r.note) confirmedNames.add(name);
     if(r.fields && r.fields["Confirmed"]){
       r.fields["Confirmed"].split(",").map(s=>s.trim()).filter(Boolean).forEach(n=>confirmedNames.add(n));
     }
   });
-  if(confirmedNames.size === 0){
+  return Array.from(confirmedNames);
+}
+
+function renderConfirmed(ev){
+  const names = getConfirmedNames(ev);
+  if(names.length === 0){
     return `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">Nobody specific — applies to whoever's on that leg</span>`;
   }
-  return Array.from(confirmedNames).sort().map(name=>`<span class="chip">${escapeHtml(name)}</span>`).join("");
+  return names.sort().map(name=>`<span class="chip">${escapeHtml(name)}</span>`).join("");
+}
+
+function timeToMinutes(str){
+  if(!str) return null;
+  const m = str.match(/(\d{1,2}):(\d{2})\s*(am|pm)/i);
+  if(!m) return null;
+  let h = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  const ap = m[3].toLowerCase();
+  if(ap === "pm" && h !== 12) h += 12;
+  if(ap === "am" && h === 12) h = 0;
+  return h * 60 + min;
+}
+
+function renderTravelerSummary(ev){
+  const names = getConfirmedNames(ev);
+  if(names.length === 0) return "";
+
+  const rows = names.map(name=>{
+    const own = (rsvpCache[ev.id] || {})[name];
+    const ownHasContent = own && ((own.fields && Object.values(own.fields).some(v=>v)) || own.note);
+    const rec = ownHasContent ? own : (findMirrorRecord(ev, name) || own);
+    const f = (rec && rec.fields) || {};
+    const flightNum = f["Flight number"];
+    const trainNum = f["Train number"];
+    const number = flightNum || trainNum || "";
+    const departs = f["Flight departs"] || f["Train departs"] || "";
+    const arrives = f["Flight lands"] || f["Train arrives"] || "";
+    return { name, number, departs, arrives, arriveMins: timeToMinutes(arrives) };
+  });
+
+  rows.sort((a,b)=>{
+    if(a.arriveMins === null && b.arriveMins === null) return a.name.localeCompare(b.name);
+    if(a.arriveMins === null) return 1;
+    if(b.arriveMins === null) return -1;
+    return a.arriveMins - b.arriveMins;
+  });
+
+  return `<table class="transport-summary">
+    <thead><tr><th>Name</th><th>Flight / train #</th><th>Departs</th><th>Arrives</th></tr></thead>
+    <tbody>
+      ${rows.map(r=>`<tr>
+        <td>${escapeHtml(r.name)}</td>
+        <td>${r.number ? escapeHtml(r.number) : "—"}</td>
+        <td>${r.departs ? escapeHtml(r.departs) : "—"}</td>
+        <td>${r.arrives ? escapeHtml(r.arrives) : "—"}</td>
+      </tr>`).join("")}
+    </tbody>
+  </table>`;
 }
 
 function getPersonNames(ev){
@@ -1118,6 +1238,7 @@ const TRANSPORT_DEFAULT_MODE = {
   "dep-munich": "train",
   "transport-chicago": "plane"
 };
+const TRANSPORT_IDS = new Set(Object.keys(TRANSPORT_DEFAULT_MODE));
 const STOPS_DEFAULT = {
   "transport-hamburg": "onestop",
   "transport-chicago": "onestop"
