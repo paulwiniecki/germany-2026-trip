@@ -648,7 +648,7 @@ const EVENTS = [
       ["Train arrives", "3:23pm · Berlin Hbf"],
       ["Train / car / seat", "ICE 1008 · Car 23 · Seat 26"]
     ],
-    attendees: ["Paul"]
+    attendees: ["Paul","Blair","Emma"]
   },
   {
     id: "arr-berlin", date: "Wed, Sep 23", title: "Berlin Accommodations", emoji: "🏨",
@@ -972,7 +972,8 @@ function renderTravelerSummary(ev){
     const number = flightNum || trainNum || "";
     const departs = f["Flight departs"] || f["Train departs"] || "";
     const arrives = f["Flight lands"] || f["Train arrives"] || "";
-    return { name, number, departs, arrives, arriveMins: timeToMinutes(arrives) };
+    const note = (rec && rec.note) || "";
+    return { name, number, departs, arrives, note, arriveMins: timeToMinutes(arrives) };
   });
 
   rows.sort((a,b)=>{
@@ -985,12 +986,18 @@ function renderTravelerSummary(ev){
   return `<table class="transport-summary">
     <thead><tr><th>Name</th><th>Flight / train #</th><th>Departs</th><th>Arrives</th></tr></thead>
     <tbody>
-      ${rows.map(r=>`<tr>
-        <td>${escapeHtml(r.name)}</td>
-        <td>${r.number ? escapeHtml(r.number) : "—"}</td>
-        <td>${r.departs ? escapeHtml(timeOnly(r.departs)) : "—"}</td>
-        <td>${r.arrives ? escapeHtml(timeOnly(r.arrives)) : "—"}</td>
-      </tr>`).join("")}
+      ${rows.map(r=>{
+        const noStructuredData = !r.number && !r.departs && !r.arrives;
+        if(noStructuredData && r.note){
+          return `<tr><td>${escapeHtml(r.name)}</td><td colspan="3" style="font-style:italic; color:rgba(10,68,120,0.75);">${escapeHtml(r.note)}</td></tr>`;
+        }
+        return `<tr>
+          <td>${escapeHtml(r.name)}</td>
+          <td>${r.number ? escapeHtml(r.number) : "—"}</td>
+          <td>${r.departs ? escapeHtml(timeOnly(r.departs)) : "—"}</td>
+          <td>${r.arrives ? escapeHtml(timeOnly(r.arrives)) : "—"}</td>
+        </tr>`;
+      }).join("")}
     </tbody>
   </table>`;
 }
