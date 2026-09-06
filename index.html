@@ -867,8 +867,15 @@ function renderConfirmed(ev){
 }
 
 function getPersonNames(ev){
-  const submitted = Object.keys(rsvpCache[ev.id] || {});
-  return Array.from(new Set([...ev.attendees, ...submitted, "Paul"])).sort();
+  const rec = rsvpCache[ev.id] || {};
+  const submitted = Object.keys(rec);
+  const confirmedExtras = [];
+  Object.values(rec).forEach(r=>{
+    if(r && r.fields && r.fields["Confirmed"]){
+      r.fields["Confirmed"].split(",").map(s=>s.trim()).filter(Boolean).forEach(n=>confirmedExtras.push(n));
+    }
+  });
+  return Array.from(new Set([...ev.attendees, ...submitted, ...confirmedExtras, "Paul"])).sort();
 }
 
 function hasSubmittedInfo(ev, name){
@@ -916,6 +923,9 @@ function renderPersonDetail(ev, name){
   let html = "";
   if(items.length) html += `<ul class="ticket-details">${items.join("")}</ul>`;
   if(rec && rec.note) html += `<div style="font-size:14px; color:rgba(22,35,63,0.85);">${escapeHtml(rec.note)}</div>`;
+  if(!html){
+    html = `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">Confirmed, but hasn't added their own details yet</span>`;
+  }
   return html;
 }
 
