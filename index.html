@@ -168,6 +168,10 @@
 
   /* ---------- Calendar ---------- */
   .calendar-wrap{ padding: 34px 20px 30px; max-width: 460px; margin: 0 auto; }
+  .calendar-legend{
+    margin-top: 14px; font-family:'IBM Plex Mono',monospace; font-size: 10.5px;
+    color: var(--parchment-dim); text-align:center; line-height:2;
+  }
   .calendar{
     background: var(--parchment); color: var(--ink);
     border-radius: 6px; padding: 20px 20px 16px;
@@ -465,6 +469,10 @@
 
   <div class="calendar-wrap">
     <div class="calendar" id="calendar"></div>
+    <div class="calendar-legend">
+      <span style="color:#4AC7A8;">━</span> Hamburg &nbsp;&nbsp; <span style="color:#E0A639;">━</span> Munich &nbsp;&nbsp; <span style="color:#E06B8C;">━</span> Berlin<br>
+      filled circle = tap for details
+    </div>
   </div>
 
   <div class="jump-recs-wrap">
