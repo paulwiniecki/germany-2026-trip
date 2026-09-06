@@ -788,16 +788,16 @@ async function loadCustomEvents(){
 const SEED_RSVPS = {
   "transport-hamburg": {
     "Kathryn": { fields: {
-      "Flight departs": "Wed 9/16, 4:05pm · ORD",
-      "Connects in": "Frankfurt — lands Thu 9/17, 7:25am",
-      "Onward flight": "Thu 9/17, 10:00am from Frankfurt",
-      "Flight lands": "Thu 9/17, 11:05am · HAM"
+      "Flight departs": "9/16, 4:05pm · ORD",
+      "Connects in": "Frankfurt — lands 9/17, 7:25am",
+      "Onward flight": "9/17, 10:00am from Frankfurt",
+      "Flight lands": "9/17, 11:05am · HAM"
     }},
     "Paul": { fields: {
-      "Flight departs": "Wed 9/16, 4:05pm · ORD",
-      "Connects in": "Frankfurt — lands Thu 9/17, 7:25am",
-      "Onward flight": "Thu 9/17, 10:00am from Frankfurt",
-      "Flight lands": "Thu 9/17, 11:05am · HAM"
+      "Flight departs": "9/16, 4:05pm · ORD",
+      "Connects in": "Frankfurt — lands 9/17, 7:25am",
+      "Onward flight": "9/17, 10:00am from Frankfurt",
+      "Flight lands": "9/17, 11:05am · HAM"
     }}
   },
   "dep-hamburg": {
@@ -821,10 +821,10 @@ const SEED_RSVPS = {
   },
   "transport-chicago": {
     "Paul": { fields: {
-      "Flight departs": "Sun 9/27, 9:50am · BER",
+      "Flight departs": "9/27, 9:50am · BER",
       "Connects in": "Newark (EWR) — lands 12:50pm",
-      "Onward flight": "Sun 9/27, 2:50pm from Newark",
-      "Flight lands": "Sun 9/27, 4:34pm · ORD"
+      "Onward flight": "9/27, 2:50pm from Newark",
+      "Flight lands": "9/27, 4:34pm · ORD"
     }}
   }
 };
@@ -949,6 +949,15 @@ function timeToMinutes(str){
   return h * 60 + min;
 }
 
+function timeOnly(str){
+  if(!str) return str;
+  return str
+    .replace(/^\s*(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat),?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},?\s*/i, "")
+    .replace(/^\s*(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat),?\s+\d{1,2}\/\d{1,2},?\s*/i, "")
+    .replace(/^\s*\d{1,2}\/\d{1,2},?\s*/, "")
+    .trim();
+}
+
 function renderTravelerSummary(ev){
   const names = getConfirmedNames(ev);
   if(names.length === 0) return "";
@@ -979,8 +988,8 @@ function renderTravelerSummary(ev){
       ${rows.map(r=>`<tr>
         <td>${escapeHtml(r.name)}</td>
         <td>${r.number ? escapeHtml(r.number) : "—"}</td>
-        <td>${r.departs ? escapeHtml(r.departs) : "—"}</td>
-        <td>${r.arrives ? escapeHtml(r.arrives) : "—"}</td>
+        <td>${r.departs ? escapeHtml(timeOnly(r.departs)) : "—"}</td>
+        <td>${r.arrives ? escapeHtml(timeOnly(r.arrives)) : "—"}</td>
       </tr>`).join("")}
     </tbody>
   </table>`;
