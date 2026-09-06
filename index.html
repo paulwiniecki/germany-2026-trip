@@ -187,7 +187,7 @@
   .calendar-day{
     aspect-ratio: 1; display:flex; align-items:center; justify-content:center;
     font-family:'IBM Plex Mono',monospace; font-size: 12.5px; border-radius: 50%;
-    color: rgba(10,68,120,0.35);
+    color: rgba(10,68,120,0.35); position:relative;
   }
   .calendar-day.has-event{
     background: var(--navy); color:#fff; cursor:pointer; font-weight:600;
@@ -195,6 +195,15 @@
   }
   .calendar-day.has-event:hover{ background: var(--navy-deep); transform: scale(1.1); }
   .calendar-day.in-range:not(.has-event){ color: var(--ink); }
+  .calendar-grid{ row-gap: 10px; }
+  .cal-bar{ position:absolute; bottom:-6px; left:-3px; right:-3px; height:4px; border-radius:2px; }
+  .cal-badge{
+    position:absolute; top:-7px; right:-7px; font-size:12px; line-height:1;
+    background:#fff; border-radius:50%; width:18px; height:18px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 3px rgba(0,0,0,0.4);
+    font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;
+  }
 
   /* ---------- Quick add ---------- */
   .quickadd-wrap{ padding: 0 20px 40px; max-width: 460px; margin: 0 auto; }
@@ -954,21 +963,39 @@ function renderCalendar(){
     }
   });
 
+  // Which city each day belongs to (colors the underline bar), transition days get a split bar,
+  // and a small icon badge marks the specific one-off events.
+  const HAM = "#4AC7A8", MUN = "#E0A639", BER = "#E06B8C";
+  const CITY_DAY = {16:HAM,17:HAM,18:HAM, 20:MUN,21:MUN,22:MUN, 24:BER,25:BER,26:BER,27:BER};
+  const SPLIT_DAY = {19:[HAM,MUN], 23:[MUN,BER]};
+  const BADGE_DAY = {16:"\u2708\uFE0F",18:"\u2615",19:"\uD83D\uDE86",20:"\uD83C\uDFF0",22:"\uD83C\uDF7B",23:"\uD83D\uDE86",27:"\u2708\uFE0F"};
+
   const weekdayLabels = ["Su","Mo","Tu","We","Th","Fr","Sa"];
   let html = `<div class="calendar-title">September 2026</div><div class="calendar-grid">`;
   weekdayLabels.forEach(w=> html += `<div class="calendar-weekday">${w}</div>`);
   for(let i=0;i<firstWeekday;i++) html += `<div class="calendar-day"></div>`;
   for(let d=1; d<=daysInMonth; d++){
     const evIds = dayMap[d];
-    if(evIds){
-      html += `<div class="calendar-day has-event" data-events="${evIds.join(',')}">${d}</div>`;
-    } else {
-      html += `<div class="calendar-day in-range">${d}</div>`;
-    }
+    const cityColor = CITY_DAY[d];
+    const split = SPLIT_DAY[d];
+    const badgeIcon = BADGE_DAY[d];
+    const inTrip = evIds || cityColor || split;
+
+    let cls = "calendar-day";
+    if(evIds) cls += " has-event";
+    else if(inTrip) cls += " in-range city-day"; // location-only day: plain number + colored underline, not clickable
+    else cls += " in-range";
+
+    const barBg = split ? `linear-gradient(90deg, ${split[0]} 50%, ${split[1]} 50%)` : (cityColor || "");
+    const bar = barBg ? `<span class="cal-bar" style="background:${barBg};"></span>` : "";
+    const badge = badgeIcon ? `<span class="cal-badge">${badgeIcon}</span>` : "";
+    const dataAttr = evIds ? ` data-events="${evIds.join(',')}"` : "";
+
+    html += `<div class="${cls}"${dataAttr}>${d}${badge}${bar}</div>`;
   }
   cal.innerHTML = html;
 
-  cal.querySelectorAll(".calendar-day.has-event").forEach(cell=>{
+  cal.querySelectorAll(".calendar-day.has-event[data-events]").forEach(cell=>{
     cell.addEventListener("click", ()=>{
       const ids = cell.dataset.events.split(",");
       const target = document.getElementById("event-" + ids[0]);
