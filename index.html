@@ -904,15 +904,33 @@ function isConfirmed(ev, name){
   });
 }
 
+function findMirrorRecord(ev, name){
+  const rec = rsvpCache[ev.id] || {};
+  for(const [submitterName, r] of Object.entries(rec)){
+    if(submitterName === name) continue;
+    if(r && r.fields && r.fields["Confirmed"]){
+      const names = r.fields["Confirmed"].split(",").map(s=>s.trim());
+      if(names.includes(name)) return r;
+    }
+  }
+  return null;
+}
+
 function renderPersonDetail(ev, name){
   if(!name){
     return `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">Choose a name to view their details</span>`;
   }
-  const rec = (rsvpCache[ev.id] || {})[name];
+  let rec = (rsvpCache[ev.id] || {})[name];
+  const ownHasContent = rec && ((rec.fields && Object.values(rec.fields).some(v=>v)) || rec.note);
+  let mirrored = false;
+  if(!ownHasContent){
+    const mirror = findMirrorRecord(ev, name);
+    if(mirror){ rec = mirror; mirrored = true; }
+  }
   const items = [];
   if(rec && rec.fields){
     Object.entries(rec.fields).forEach(([label,val])=>{
-      if(!val) return;
+      if(!val || label === "Confirmed") return;
       items.push(`<li><b>${label}</b>${escapeHtml(val)}</li>`);
       if(label === "Address"){
         const mapUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(val);
@@ -921,9 +939,10 @@ function renderPersonDetail(ev, name){
     });
   }
   let html = "";
+  if(mirrored) html += `<div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:rgba(22,35,63,0.5); margin-bottom:8px;">Same details as whoever confirmed them</div>`;
   if(items.length) html += `<ul class="ticket-details">${items.join("")}</ul>`;
   if(rec && rec.note) html += `<div style="font-size:14px; color:rgba(22,35,63,0.85);">${escapeHtml(rec.note)}</div>`;
-  if(!html){
+  if(!items.length && !(rec && rec.note)){
     html = `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">Confirmed, but hasn't added their own details yet</span>`;
   }
   return html;
