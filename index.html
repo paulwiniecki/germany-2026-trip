@@ -851,15 +851,19 @@ function renderTimeline(){
 
 function renderConfirmed(ev){
   const rec = rsvpCache[ev.id] || {};
-  const extras = Object.entries(rec)
-    .filter(([,r]) => r && r.fields && r.fields["Confirmed"])
-    .map(([name,r]) => `${name} — ${escapeHtml(r.fields["Confirmed"])}`);
-  const staticChips = ev.attendees.slice().sort().map(name=>`<span class="chip">${name}</span>`);
-  const extraChips = extras.map(text=>`<span class="chip">${text}</span>`);
-  if(staticChips.length === 0 && extraChips.length === 0){
+  const confirmedNames = new Set(ev.attendees);
+  Object.entries(rec).forEach(([name, r])=>{
+    if(!r) return;
+    const hasFields = r.fields && Object.values(r.fields).some(v => v);
+    if(hasFields || r.note) confirmedNames.add(name); // submitting any details implies you're confirmed
+    if(r.fields && r.fields["Confirmed"]){
+      r.fields["Confirmed"].split(",").map(s=>s.trim()).filter(Boolean).forEach(n=>confirmedNames.add(n));
+    }
+  });
+  if(confirmedNames.size === 0){
     return `<span style="opacity:.6; font-family:'IBM Plex Mono',monospace; font-size:12px;">Nobody specific — applies to whoever's on that leg</span>`;
   }
-  return staticChips.concat(extraChips).join("");
+  return Array.from(confirmedNames).sort().map(name=>`<span class="chip">${escapeHtml(name)}</span>`).join("");
 }
 
 function getPersonNames(ev){
@@ -882,6 +886,11 @@ function defaultPersonName(ev){
 function isConfirmed(ev, name){
   if(ev.attendees.includes(name)) return true;
   const rec = rsvpCache[ev.id] || {};
+  const r = rec[name];
+  if(r){
+    const hasFields = r.fields && Object.values(r.fields).some(v => v);
+    if(hasFields || r.note) return true;
+  }
   return Object.values(rec).some(r=>{
     if(!r || !r.fields || !r.fields["Confirmed"]) return false;
     return r.fields["Confirmed"].split(",").map(s=>s.trim()).includes(name);
@@ -1286,7 +1295,7 @@ function initQuickAdd(){
           <span>${n}</span>
         </label>`;
     }).join("");
-    confirmedWrap.innerHTML = `<label>Confirmed — who are you with?</label><div class="qa-checkbox-grid" data-label="Confirmed">${checkboxesHtml}</div>`;
+    confirmedWrap.innerHTML = `<label>Anyone else confirmed with you? (optional — you're confirmed just by saving)</label><div class="qa-checkbox-grid" data-label="Confirmed">${checkboxesHtml}</div>`;
     fieldsWrap.appendChild(confirmedWrap);
 
     if(ACCOMMODATION_IDS.has(ev.id)){
