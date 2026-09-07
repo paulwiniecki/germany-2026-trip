@@ -339,10 +339,12 @@
   .ticket-details a{ color: var(--green); font-weight: 600; text-decoration: none; }
   .ticket-details a:hover{ text-decoration: underline; }
 
-  .transport-summary{ width:100%; border-collapse:collapse; margin: 0 0 14px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; }
-  .transport-summary th{ text-align:left; text-transform:uppercase; font-size:10px; letter-spacing:0.03em; color: rgba(10,68,120,0.5); padding: 0 6px 5px 0; border-bottom: 1px solid rgba(10,68,120,0.15); }
-  .transport-summary td{ padding: 5px 6px 5px 0; border-bottom: 1px solid rgba(10,68,120,0.08); color: var(--ink); vertical-align:top; }
+  .transport-summary-wrap{ width:100%; overflow-x:auto; margin: 0 0 14px; -webkit-overflow-scrolling:touch; }
+  .transport-summary{ border-collapse:collapse; font-family:'IBM Plex Mono',monospace; font-size:11px; white-space:nowrap; }
+  .transport-summary th{ text-align:left; text-transform:uppercase; font-size:9.5px; letter-spacing:0.02em; color: rgba(10,68,120,0.5); padding: 0 10px 5px 0; border-bottom: 1px solid rgba(10,68,120,0.15); white-space:nowrap; }
+  .transport-summary td{ padding: 5px 10px 5px 0; border-bottom: 1px solid rgba(10,68,120,0.08); color: var(--ink); vertical-align:top; white-space:nowrap; }
   .transport-summary tr:last-child td{ border-bottom: none; }
+  .transport-summary td[colspan]{ white-space:normal; }
 
   .save-btn{ width:auto; padding: 9px 16px; font-size:11px; margin-top: 8px; }
   .save-state{ font-family:'IBM Plex Mono',monospace; font-size: 11px; color: var(--green); margin-left: 10px; opacity:0; transition: opacity .3s; }
@@ -984,8 +986,8 @@ function renderTravelerSummary(ev){
     return a.arriveMins - b.arriveMins;
   });
 
-  return `<table class="transport-summary">
-    <thead><tr><th>Name</th><th>Flight / train #</th><th>Departs</th><th>Arrives</th></tr></thead>
+  return `<div class="transport-summary-wrap"><table class="transport-summary">
+    <thead><tr><th>Name</th><th>#</th><th>Departs</th><th>Arrives</th></tr></thead>
     <tbody>
       ${rows.map(r=>{
         const noStructuredData = !r.number && !r.departs && !r.arrives;
@@ -1000,7 +1002,7 @@ function renderTravelerSummary(ev){
         </tr>`;
       }).join("")}
     </tbody>
-  </table>`;
+  </table></div>`;
 }
 
 function getPersonNames(ev){
