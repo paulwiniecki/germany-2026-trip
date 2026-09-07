@@ -339,9 +339,9 @@
   .ticket-details a{ color: var(--green); font-weight: 600; text-decoration: none; }
   .ticket-details a:hover{ text-decoration: underline; }
 
-  .transport-summary{ width:100%; border-collapse:collapse; margin: 0 0 14px; font-family:'IBM Plex Mono',monospace; font-size:12px; }
-  .transport-summary th{ text-align:left; text-transform:uppercase; font-size:10.5px; letter-spacing:0.03em; color: rgba(10,68,120,0.5); padding: 0 8px 6px 0; border-bottom: 1px solid rgba(10,68,120,0.15); }
-  .transport-summary td{ padding: 6px 8px 6px 0; border-bottom: 1px solid rgba(10,68,120,0.08); color: var(--ink); vertical-align:top; }
+  .transport-summary{ width:100%; border-collapse:collapse; margin: 0 0 14px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; }
+  .transport-summary th{ text-align:left; text-transform:uppercase; font-size:10px; letter-spacing:0.03em; color: rgba(10,68,120,0.5); padding: 0 6px 5px 0; border-bottom: 1px solid rgba(10,68,120,0.15); }
+  .transport-summary td{ padding: 5px 6px 5px 0; border-bottom: 1px solid rgba(10,68,120,0.08); color: var(--ink); vertical-align:top; }
   .transport-summary tr:last-child td{ border-bottom: none; }
 
   .save-btn{ width:auto; padding: 9px 16px; font-size:11px; margin-top: 8px; }
@@ -955,6 +955,7 @@ function timeOnly(str){
     .replace(/^\s*(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat),?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},?\s*/i, "")
     .replace(/^\s*(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat),?\s+\d{1,2}\/\d{1,2},?\s*/i, "")
     .replace(/^\s*\d{1,2}\/\d{1,2},?\s*/, "")
+    .split(/[·—]/)[0]
     .trim();
 }
 
