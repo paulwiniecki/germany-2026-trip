@@ -666,6 +666,19 @@ const EVENTS = [
     attendees: ["Jordan","Paul"]
   },
   {
+    id: "street-art-tour", date: "Fri, Sep 25", title: "Street Art Walking Tour", emoji: "🎨",
+    details: [
+      ["Time", "1:00pm"],
+      ["Duration", "~3 hours"],
+      ["Booking reference", "1446965851"],
+      ["Meeting point", "Warschauer Str. 53, Berlin, Germany"],
+      ["Map", "<a href=\"https://www.google.com/maps/search/?api=1&query=Warschauer%20Str.%2053%2C%20Berlin%2C%20Germany\" target=\"_blank\" rel=\"noopener\">Open in Google Maps →</a>"],
+      ["Tour details", "<a href=\"https://www.viator.com/tours/Berlin/Street-Art-Tour-Off-The-Grid/d488-6131P9\" target=\"_blank\" rel=\"noopener\">View tour details →</a>"]
+    ],
+    mapQuery: "Warschauer Str. 53, Berlin, Germany",
+    attendees: ["Michael","Paul","Emma","Natalie","Joe","Jordan","Dillon","Blair"]
+  },
+  {
     id: "transport-chicago", date: "Sun, Sep 27", title: "Transportation to Chicago", emoji: "✈️",
     details: [
       ["Flight departs", "Sun 9/27, 9:50am · BER"],
@@ -1153,7 +1166,7 @@ function renderCalendar(){
   const HAM = "#4AC7A8", MUN = "#E0A639", BER = "#E06B8C";
   const CITY_DAY = {16:HAM,17:HAM,18:HAM, 20:MUN,21:MUN,22:MUN, 24:BER,25:BER,26:BER,27:BER};
   const SPLIT_DAY = {19:[HAM,MUN], 23:[MUN,BER]};
-  const BADGE_DAY = {16:"\u2708\uFE0F",18:"\u2615",19:"\uD83D\uDE86",20:"\uD83C\uDFF0",22:"\uD83C\uDF7B",23:"\uD83D\uDE86",27:"\u2708\uFE0F"};
+  const BADGE_DAY = {16:"\u2708\uFE0F",18:"\u2615",19:"\uD83D\uDE86",20:"\uD83C\uDFF0",22:"\uD83C\uDF7B",23:"\uD83D\uDE86",25:"\uD83C\uDFA8",27:"\u2708\uFE0F"};
 
   const weekdayLabels = ["Su","Mo","Tu","We","Th","Fr","Sa"];
   let html = `<div class="calendar-title">September 2026</div><div class="calendar-grid">`;
